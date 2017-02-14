@@ -1,0 +1,55 @@
+import glob_ from 'glob';
+
+/**
+ * @param {!string} pattern
+ * @param {Function} callback
+ * @return {Promise}
+ */
+const _globSingle = (pattern, callback) => {
+  return new Promise((resolve) => {
+    glob_(pattern, (err, files) => {
+      if(err) console.log(err);
+      if(callback) callback();
+      resolve(files);
+    });
+  });
+};
+
+/**
+ * @param {!string} pattern
+ * @param {Function} callback
+ * @return {Promise}
+ */
+const _globMultiple = (patterns, callback) => {
+  const _patterns = [];
+  return (async () => {
+    await Promise.all(patterns.map((pattern) => {
+      return new Promise((resolve) => {
+        glob_(pattern, (err, files) => {
+          if(err) console.log(err);
+          _patterns.push(...files);
+          resolve();
+        });
+      });
+    }));
+    if(callback) callback();
+    return _patterns;
+  })();
+};
+
+/**
+ * @param {!string} pattern
+ * @param {Function} [callback]
+ * @return {Promise|null}
+ */
+export const glob = (pattern, callback = null) => {
+  if(typeof pattern === 'string') {
+    return _globSingle(_globSingle, callback);
+  }
+  else if(Array.isArray(pattern)) {
+    return _globMultiple(_globSingle, callback);
+  }
+  else {
+    return null;
+  }
+};
