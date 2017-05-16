@@ -3,8 +3,8 @@ import { writeFile } from 'fs';
 import mkdirp from 'mkdirp';
 
 /**
- * @param {!string} path
- * @param {!string} data
+ * @param {string} path
+ * @param {string} data
  * @param {function} [callback]
  * @return {Promise}
  */

@@ -10,7 +10,7 @@ export default class Clean {
   }
 
   /**
-   * @return {!Promsie}
+   * @return {Promsie}
    */
   start() {
     const { _log } = this;

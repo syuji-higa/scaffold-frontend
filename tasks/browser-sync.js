@@ -11,7 +11,7 @@ export default class BrowserSync {
   }
 
   /**
-   * @return {!Promsie}
+   * @return {Promsie}
    */
   start() {
     const { dest } = config.path;

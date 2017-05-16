@@ -38,7 +38,7 @@ export default class Log {
   }
 
   /**
-   * @param {!number} date
+   * @param {number} date
    */
   _getTime(date) {
     return `${ date.getHours() }:${ date.getMinutes() }:${ date.getSeconds() }`;

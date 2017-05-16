@@ -67,7 +67,7 @@ export default class Pug {
   }
 
   /**
-   * @param {!Array}
+   * @param {Array<string>} files
    * @return {Promise}
    */
   _build(files) {
@@ -108,6 +108,9 @@ export default class Pug {
     };
   }
 
+  /**
+   * @param {string} file
+   */
   _getMembers(file) {
     const { root, src } = config.pug;
     const { production } = NS.argv;

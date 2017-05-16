@@ -1,8 +1,8 @@
 import glob_ from 'glob';
 
 /**
- * @param {!string} pattern
- * @param {Function} callback
+ * @param {string} pattern
+ * @param {function} callback
  * @return {Promise}
  */
 const _globSingle = (pattern, callback) => {
@@ -16,8 +16,8 @@ const _globSingle = (pattern, callback) => {
 };
 
 /**
- * @param {!string} pattern
- * @param {Function} callback
+ * @param {string} pattern
+ * @param {function} callback
  * @return {Promise}
  */
 const _globMultiple = (patterns, callback) => {
@@ -38,8 +38,8 @@ const _globMultiple = (patterns, callback) => {
 };
 
 /**
- * @param {!(string|Array<string>)} pattern
- * @param {Function} [callback]
+ * @param {string|Array<string>} pattern
+ * @param {function} [callback]
  * @return {Promise}
  */
 export const glob = (pattern, callback = null) => {

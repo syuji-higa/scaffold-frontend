@@ -7,7 +7,7 @@ export default class FileCache {
   }
 
   /**
-   * @param {!string} path
+   * @param {string} path
    */
   set(path) {
     const { _cacheMap } = this;
@@ -16,7 +16,8 @@ export default class FileCache {
   }
 
   /**
-   * @param {!string} path
+   * @param {string} path
+   * @return {boolean}
    */
   check(path) {
     const { _cacheMap } = this;
