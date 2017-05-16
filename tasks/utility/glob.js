@@ -38,18 +38,18 @@ const _globMultiple = (patterns, callback) => {
 };
 
 /**
- * @param {!string} pattern
+ * @param {!(string|Array<string>)} pattern
  * @param {Function} [callback]
- * @return {Promise|null}
+ * @return {Promise}
  */
 export const glob = (pattern, callback = null) => {
   if(typeof pattern === 'string') {
-    return _globSingle(_globSingle, callback);
+    return _globSingle(pattern, callback);
   }
   else if(Array.isArray(pattern)) {
-    return _globMultiple(_globSingle, callback);
+    return _globMultiple(pattern, callback);
   }
   else {
-    return null;
+    throw new TypeError();
   }
 };
