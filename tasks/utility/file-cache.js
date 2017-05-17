@@ -1,4 +1,5 @@
 import { readFileSync } from 'fs';
+import { createHash, update, digest } from 'crypto';
 
 export default class FileCache {
 
@@ -11,24 +12,34 @@ export default class FileCache {
    */
   set(path) {
     const { _cacheMap } = this;
-    const _buf = readFileSync(path);
-    _cacheMap.set(path, _buf);
+    const _buf  = readFileSync(path);
+    const _hash = this._toHash(_buf);
+    _cacheMap.set(path, _hash);
   }
 
   /**
    * @param {string} path
    * @return {boolean}
    */
-  check(path) {
+  mightUpdate(path) {
     const { _cacheMap } = this;
-    const _buf      = readFileSync(path);
-    const _bufCache = _cacheMap.get(path);
-    if(_bufCache && Buffer.compare(_bufCache, _buf) === 0) {
+    const _buf       = readFileSync(path);
+    const _hash      = this._toHash(_buf);
+    const _hashCache = _cacheMap.get(path);
+    if(_hashCache === _hash) {
       return true;
     } else {
-      _cacheMap.set(path, _buf);
+      _cacheMap.set(path, _hash);
       return false;
     }
+  }
+
+  /**
+   * @param {Buffer} buf
+   * @return {string}
+   */
+  _toHash(buf) {
+    return createHash('md5').update(buf.toString('utf8')).digest('hex');
   }
 
 }

@@ -13,7 +13,8 @@ export default class Pug {
   constructor() {
     this._log       = new Log('pug');
     this._fileCache = new FileCache();
-    this._pugOpts   = {
+
+    this._pugOpts = {
       pretty : true,
       filters: this._getFilters(),
     };
@@ -32,27 +33,29 @@ export default class Pug {
   _observe() {
     const { srcAll, src, tmp } = config.pug;
     const { root } = NS;
-    const { _fileCache } = this;
+    const { _fileCache, _initWatcher, _srcWatcher, _tmpWatcher } = this;
 
-    const _opts = { ignoreInitial: true };
-
-    chokidar.watch(join(srcAll, '**/*.pug')).on('add', (path) => {
-      _fileCache.set(path);
-    });
+    // init
+    chokidar.watch(join(srcAll, '**/*.pug'), { persistent: false })
+      .on('add', (path) => {
+        _fileCache.set(path);
+      });
 
     // src
-    chokidar.watch(join(src, '**/*.pug'), _opts).on('all', (event, path) => {
-      if(!event.match(/(add|change)/) || _fileCache.check(path)) return;
-      console.log(`# ${ event } -> ${ path }`);
-      this._build([relative(root, path)]);
-    });
+    chokidar.watch(join(src, '**/*.pug'), { ignoreInitial: true })
+      .on('all', (event, path) => {
+        if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
+        console.log(`# ${ event } -> ${ path }`);
+        this._build([relative(root, path)]);
+      });
 
     // extends or includes
-    chokidar.watch(join(tmp, '**/*.pug'), _opts).on('all', (event, path) => {
-      if(!event.match(/(add|change)/) || _fileCache.check(path)) return;
-      console.log(`# ${ event } -> ${ path }`);
-      this._buildAll();
-    });
+    chokidar.watch(join(tmp, '**/*.pug'), { ignoreInitial: true })
+      .on('all', (event, path) => {
+        if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
+        console.log(`# ${ event } -> ${ path }`);
+        this._buildAll();
+      });
   }
 
   /**
