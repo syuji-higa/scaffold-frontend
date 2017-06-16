@@ -6,7 +6,6 @@ import Pug from './tasks/pug';
 
 global.NS = {};
 NS.argv = minimist(process.argv.slice(2));
-NS.root = __dirname;
 
 const browserSync = new BrowserSync();
 const pug         = new Pug();

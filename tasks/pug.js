@@ -11,8 +11,9 @@ import iconv from 'iconv-lite';
 export default class Pug {
 
   constructor() {
-    this._log       = new Log('pug');
-    this._fileCache = new FileCache();
+    this._log        = new Log('pug');
+    this._factoryLog = new Log('pug factory');
+    this._fileCache  = new FileCache();
 
     this._pugOpts = {
       pretty : true,
@@ -31,22 +32,22 @@ export default class Pug {
   }
 
   _observe() {
-    const { srcAll, src, tmp } = config.pug;
-    const { root } = NS;
+    const { root, src, tmp, factory } = config.pug;
     const { _fileCache, _initWatcher, _srcWatcher, _tmpWatcher } = this;
 
     // init
-    chokidar.watch(join(srcAll, '**/*.pug'), { persistent: false })
+    chokidar.watch(join(root, '**/*.(pug|json)'), { persistent: false })
       .on('add', (path) => {
         _fileCache.set(path);
       });
 
     // src
+    const { path } = config;
     chokidar.watch(join(src, '**/*.pug'), { ignoreInitial: true })
       .on('all', (event, path) => {
         if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
         console.log(`# ${ event } -> ${ path }`);
-        this._build([relative(root, path)]);
+        this._build([relative(path.root, path)]);
       });
 
     // extends or includes
@@ -55,6 +56,14 @@ export default class Pug {
         if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
         console.log(`# ${ event } -> ${ path }`);
         this._buildAll();
+      });
+
+    // factorys
+    chokidar.watch(join(factory, '**/*.(pug|json)'), { ignoreInitial: true })
+      .on('all', (event, path) => {
+        if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
+        console.log(`# ${ event } -> ${ path }`);
+        this._factory([relative(root, path)]);
       });
   }
 
@@ -92,6 +101,25 @@ export default class Pug {
         })();
       }));
       _log.finish();
+    })();
+  }
+
+  /**
+   * @param {Array<string>} files
+   * @return {Promise}
+   */
+  _factory(files) {
+    const { _factoryLog, _pugOpts } = this;
+    const { charset, src, dest } = config.pug;
+    return (async () => {
+      _factoryLog.start();
+      await Promise.all(files.map((file, i) => {
+        if(i === 0) console.log('# Created files');
+        return (async() => {
+          console.log(file);
+        })();
+      }));
+      _factoryLog.finish();
     })();
   }
 
