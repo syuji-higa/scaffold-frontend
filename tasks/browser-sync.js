@@ -2,6 +2,7 @@ import config from '../tasks-config';
 import { join } from 'path';
 import bs from 'browser-sync';
 import Log from './utility/log';
+import chokidar from 'chokidar';
 
 const browserSync = bs.create();
 
@@ -30,6 +31,7 @@ export default class BrowserSync {
           reloadOnRestart: true,
         }, resolve);
       })
+      this._watch();
       _log.finish();
     })();
   }
@@ -45,13 +47,14 @@ export default class BrowserSync {
     const _path = _urlStrs[1];
     const _ext  = _urlStrs[2];
 
+    const { dest } = config.path;
     const { destSet, pugSet, stylusSet, jsSet } = NS.curtFiles;
 
     if(_ext) {
-      destSet.add(_path);
+      destSet.add(join(dest, _path));
     } else {
-      destSet.add(`${ _path }index.html`);
-      pugSet.add(`${ _path }index.pug`);
+      destSet.add(join(dest, _path, 'index.html'));
+      pugSet.add(join(_path, 'index.pug'));
     }
 
     switch(_ext) {
@@ -67,7 +70,7 @@ export default class BrowserSync {
         break;
     }
 
-    console.log(NS.curtFiles);
+    // console.log(NS.curtFiles);
 
     // if(_otherUrl) {
     //   const { dest } = config.path;
@@ -81,6 +84,25 @@ export default class BrowserSync {
     //   NS.curtPage = _pageUrl[0].match(/\/$/) ? `${ _pageUrl[0] }index.html` : _pageUrl[0];
     // }
     next();
+  }
+
+  _watch() {
+    const { dest } = config.path;
+    const { destSet } = NS.curtFiles;
+
+    // compile files
+    chokidar.watch(join(dest, '**/*.(html|php|css|js)'), { ignoreInitial: true })
+      .on('all', (event, path) => {
+        if(![...destSet].includes(path)) return;
+        console.log('reloaded');
+        browserSync.reload(path);
+      });
+
+    // image files
+    chokidar.watch(join(dest, '**/*.(png|jpg|jpeg|gif|svg)'), { ignoreInitial: true })
+      .on('all', (event, path) => {
+        browserSync.reload(path);
+      });
   }
 
 }
