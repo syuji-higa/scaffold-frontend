@@ -5,7 +5,10 @@ import Clean from './tasks/clean';
 import Pug from './tasks/pug';
 
 global.NS = {};
-NS.argv = minimist(process.argv.slice(2));
+NS.argv      = minimist(process.argv.slice(2));
+NS.curtFiles = {
+  destSet: new Set(), pugSet: new Set(), stylusSet: new Set(), jsSet: new Set(),
+};
 
 const browserSync = new BrowserSync();
 const pug         = new Pug();

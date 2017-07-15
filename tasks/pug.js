@@ -1,4 +1,5 @@
 import config from '../tasks-config';
+import { readFileSync } from 'fs';
 import { join, relative, dirname } from 'path';
 import { mkfile } from './utility/file';
 import { glob } from './utility/glob';
@@ -14,11 +15,6 @@ export default class Pug {
     this._log        = new Log('pug');
     this._factoryLog = new Log('pug factory');
     this._fileCache  = new FileCache();
-
-    this._pugOpts = {
-      pretty : true,
-      filters: this._getFilters(),
-    };
   }
 
   /**
@@ -27,13 +23,20 @@ export default class Pug {
   start() {
     return (async () => {
       await this._buildAll();
-      this._observe();
+      this._watch();
     })();
   }
 
-  _observe() {
+  get _pugOpts() {
+    return {
+      pretty : true,
+      filters: this._getFilters(),
+    };
+  }
+
+  _watch() {
     const { root, src, tmp, factory } = config.pug;
-    const { _fileCache, _initWatcher, _srcWatcher, _tmpWatcher } = this;
+    const { _fileCache } = this;
 
     // init
     chokidar.watch(join(root, '**/*.(pug|json)'), { persistent: false })
@@ -42,29 +45,41 @@ export default class Pug {
       });
 
     // src
-    const { path } = config;
     chokidar.watch(join(src, '**/*.pug'), { ignoreInitial: true })
       .on('all', (event, path) => {
         if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
         console.log(`# ${ event } -> ${ path }`);
-        this._build([relative(path.root, path)]);
+        const { root: _root } = config.path;
+        this._build([relative(_root, path)]);
       });
 
     // extends or includes
-    chokidar.watch(join(tmp, '**/*.pug'), { ignoreInitial: true })
+    if(!NS.argv['pug-watch-src-only']) {
+      chokidar.watch(join(tmp, '**/*.pug'), { ignoreInitial: true })
+        .on('all', (event, path) => {
+          if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
+          console.log(`# ${ event } -> ${ path }`);
+          this._buildAll();
+        });
+    }
+
+    // factorys json
+    chokidar.watch(join(factory, '**/*.json'), { ignoreInitial: true })
       .on('all', (event, path) => {
         if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
         console.log(`# ${ event } -> ${ path }`);
-        this._buildAll();
+        this._factoryBuild([relative(root, path)]);
       });
 
-    // factorys
-    chokidar.watch(join(factory, '**/*.(pug|json)'), { ignoreInitial: true })
-      .on('all', (event, path) => {
-        if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
-        console.log(`# ${ event } -> ${ path }`);
-        this._factory([relative(root, path)]);
-      });
+    // factorys template
+    if(!NS.argv['pug-factory-watch-json-only']) {
+      chokidar.watch(join(factory, '**/*.pug'), { ignoreInitial: true })
+        .on('all', (event, path) => {
+          if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
+          console.log(`# ${ event } -> ${ path }`);
+          this._factoryBuild([relative(root, path)]);
+        });
+    }
   }
 
   /**
@@ -105,19 +120,51 @@ export default class Pug {
   }
 
   /**
+   * @return {Promsie}
+   */
+  _factoryBuildAll() {
+    return (async () => {
+      const { factory } = config.pug;
+      const _files = await glob(join(factory, '**/*.json'));
+      if(_files.length) await this._factoryBuild(_files);
+    })();
+  }
+
+  /**
    * @param {Array<string>} files
    * @return {Promise}
    */
-  _factory(files) {
+  _factoryBuild(files) {
     const { _factoryLog, _pugOpts } = this;
-    const { charset, src, dest } = config.pug;
+    const { charset, root, src, dest } = config.pug;
     return (async () => {
       _factoryLog.start();
       await Promise.all(files.map((file, i) => {
         if(i === 0) console.log('# Created files');
-        return (async() => {
-          console.log(file);
-        })();
+        const _buf  = readFileSync(join(root, file));
+        const _tmps = JSON.parse(_buf.toString());
+        return Promise.all(Object.entries(_tmps).map(([tmpFile, pages]) => {
+          const _tmpBuf   = readFileSync(join(root, tmpFile));
+          const _tmp      = _tmpBuf.toString();
+          const _splitTmp = _tmp.split('{{vars}}');
+          return Promise.all(Object.entries(pages).map(([pageFile, vals]) => {
+            return (async() => {
+              const _valsStr = Object.entries(vals).reduce((memo, [key, val]) => {
+                return `${ memo }  - var ${ key } = ${ JSON.stringify(val) }\n`;
+              }, '');
+              const _contents = _splitTmp[0] + _valsStr + _splitTmp[1];
+              const _members  = this._getMembers(join(root, pageFile));
+              const _opts     = Object.assign(_pugOpts, _members);
+              let _html = pug.render(_contents, _opts);
+              if(charset !== 'utf8') {
+                _html = iconv.encode(_html, charset).toString();
+              }
+              const _dest = join(dest, pageFile).replace('.pug', '.html');
+              await mkfile(_dest, _html);
+              console.log(`  - ${ _dest }`);
+            })();
+          }));
+        }));
       }));
       _factoryLog.finish();
     })();
