@@ -53,7 +53,7 @@ export default class Pug {
         this._build([relative(_root, path)]);
       });
 
-    // extends or includes
+    // extend or include
     if(!NS.argv['pug-watch-src-only']) {
       chokidar.watch(join(tmp, '**/*.pug'), { ignoreInitial: true })
         .on('all', (event, path) => {
@@ -88,8 +88,15 @@ export default class Pug {
   _buildAll() {
     return (async () => {
       const { src } = config.pug;
-      const _files = await glob(join(src, '**/*.pug'));
-      if(_files.length) await this._build(_files);
+      const { pugSet } = NS.curtFiles;
+      const _files      = await glob(join(src, '**/*.pug'));
+      const _curtFiles  = [];
+      const _otherFiles = [];
+      for(const file of _files) {
+        pugSet.has(file) ? _curtFiles.push(file) : _otherFiles.push(file);
+      }
+      if(_curtFiles.length) await this._build(_curtFiles);
+      if(_otherFiles.length) await this._build(_otherFiles);
     })();
   }
 

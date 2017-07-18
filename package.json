@@ -5,6 +5,7 @@
   "main": "",
   "scripts": {
     "build": "babel-node tasks.js",
+    "build-update-only": "babel-node tasks.js --pug-watch-src-only --pug-factory-watch-json-only",
     "build-php": "babel-node tasks.js --php",
     "production": "babel-node tasks.js --production",
     "esdoc": "esdoc -c esdoc.json",

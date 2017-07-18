@@ -1,10 +1,9 @@
 # 開発環境の構築
 
-このプロジェクトは [Gulp](http://gulpjs.com/) で管理されています。
+このプロジェクトは [node.js](https://nodejs.org/en/) で構築されています。
 
 ## グローバルにインストールが必要なモジュール
 - [node.js](https://nodejs.org/en/)
-- [gulp-cli](https://github.com/gulpjs/gulp-cli)
 
 ## [npm](https://www.npmjs.com/) から必要なモジュールをインストール
 
@@ -19,16 +18,8 @@ $ npm install
 
 | タスク                      | コマンド             |
 |:----------------------------|:---------------------|
-| development                 | gulp                 |
-| development watch           | gulp watch           |
-| development coding          | gulp coding          |
-| development coding watch    | gulp coding-watch    |
-| development scripting       | gulp scripting       |
-| development scripting watch | gulp scripting-watch |
-| production                  | gulp production      |
-| image minimizing            | gulp imagemin        |
-| create url list             | gulp url-list        |
-| unnecessary files delete    | gulp clean           |
+| development                 | npm run build        |
+| production                  | npm run production   |
 
 ### gulp
 pug、Stylus、JavaScript、sprite のコンパイル等をして、関連ファイルを監視します。
