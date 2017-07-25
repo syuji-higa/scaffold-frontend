@@ -35,6 +35,7 @@ export default class Pug {
   }
 
   _watch() {
+    const { argv } = NS;
     const { root, src, tmp, factory } = config.pug;
     const { _fileCache } = this;
 
@@ -54,7 +55,7 @@ export default class Pug {
       });
 
     // extend or include
-    if(!NS.argv['pug-watch-src-only']) {
+    if(!argv['pug-watch-src-only']) {
       chokidar.watch(join(tmp, '**/*.pug'), { ignoreInitial: true })
         .on('all', (event, path) => {
           if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
@@ -72,7 +73,7 @@ export default class Pug {
       });
 
     // factorys template
-    if(!NS.argv['pug-factory-watch-json-only']) {
+    if(!argv['pug-factory-watch-json-only']) {
       chokidar.watch(join(factory, '**/*.pug'), { ignoreInitial: true })
         .on('all', (event, path) => {
           if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
