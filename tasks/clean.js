@@ -21,12 +21,11 @@ export default class Clean {
       _log.start();
       const _delFiles = await glob(deletes);
       if(_delFiles) {
-        await Promise.all(_delFiles.map((file, i) => {
-          if(i === 0) console.log('# Deleted files');
+        await Promise.all(_delFiles.map((file) => {
           return new Promise((resolve) => {
             unlink(file, (err) => {
               if(err) console.log(err);
-              console.log(`  - ${ file }`);
+              console.log(`#Deleted -> ${ file }`);
               resolve();
             });
           });

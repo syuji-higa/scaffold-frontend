@@ -28,15 +28,16 @@ export default class Pug {
   }
 
   get _pugOpts() {
+    const { argv } = NS;
     return {
-      pretty : true,
+      pretty : !argv['production'],
       filters: this._getFilters(),
     };
   }
 
   _watch() {
+    const { root, src, tmp, factorys } = config.pug;
     const { argv } = NS;
-    const { root, src, tmp, factory } = config.pug;
     const { _fileCache } = this;
 
     // init
@@ -55,7 +56,7 @@ export default class Pug {
       });
 
     // extend or include
-    if(!argv['pug-watch-src-only']) {
+    if(!argv['pug-watch-src']) {
       chokidar.watch(join(tmp, '**/*.pug'), { ignoreInitial: true })
         .on('all', (event, path) => {
           if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
@@ -65,7 +66,7 @@ export default class Pug {
     }
 
     // factorys json
-    chokidar.watch(join(factory, '**/*.json'), { ignoreInitial: true })
+    chokidar.watch(join(factorys, '**/*.json'), { ignoreInitial: true })
       .on('all', (event, path) => {
         if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
         console.log(`# ${ event } -> ${ path }`);
@@ -73,8 +74,8 @@ export default class Pug {
       });
 
     // factorys template
-    if(!argv['pug-factory-watch-json-only']) {
-      chokidar.watch(join(factory, '**/*.pug'), { ignoreInitial: true })
+    if(!argv['pug-factory-watch-json']) {
+      chokidar.watch(join(factorys, '**/*.pug'), { ignoreInitial: true })
         .on('all', (event, path) => {
           if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
           console.log(`# ${ event } -> ${ path }`);
@@ -106,12 +107,11 @@ export default class Pug {
    * @return {Promise}
    */
   _build(files) {
-    const { _log, _pugOpts } = this;
     const { charset, src, dest } = config.pug;
+    const { _log, _pugOpts } = this;
     return (async () => {
       _log.start();
-      await Promise.all(files.map((file, i) => {
-        if(i === 0) console.log('# Created files');
+      await Promise.all(files.map((file) => {
         return (async() => {
           const _dest = join(dest, relative(src, file)).replace('.pug', '.html');
           const _opts = Object.assign(_pugOpts, this._getMembers(file));
@@ -120,7 +120,7 @@ export default class Pug {
             _html = iconv.encode(_html, charset).toString();
           }
           await mkfile(_dest, _html);
-          console.log(`  - ${ _dest }`);
+          console.log(`# Created -> ${ _dest }`);
         })();
       }));
       _log.finish();
@@ -132,8 +132,8 @@ export default class Pug {
    */
   _factoryBuildAll() {
     return (async () => {
-      const { factory } = config.pug;
-      const _files = await glob(join(factory, '**/*.json'));
+      const { factorys } = config.pug;
+      const _files = await glob(join(factorys, '**/*.json'));
       if(_files.length) await this._factoryBuild(_files);
     })();
   }
@@ -147,8 +147,7 @@ export default class Pug {
     const { charset, root, src, dest } = config.pug;
     return (async () => {
       _factoryLog.start();
-      await Promise.all(files.map((file, i) => {
-        if(i === 0) console.log('# Created files');
+      await Promise.all(files.map((file) => {
         const _buf  = readFileSync(join(root, file));
         const _tmps = JSON.parse(_buf.toString());
         return Promise.all(Object.entries(_tmps).map(([tmpFile, pages]) => {
@@ -169,7 +168,7 @@ export default class Pug {
               }
               const _dest = join(dest, pageFile).replace('.pug', '.html');
               await mkfile(_dest, _html);
-              console.log(`  - ${ _dest }`);
+              console.log(`# Created -> ${ _dest }`);
             })();
           }));
         }));
@@ -204,8 +203,7 @@ export default class Pug {
       isProduction: production,
       basedir     : root,
       relative    : (path) => {
-        const _path = relative(relative(src, dirname(file)), path);
-        return _path ? _path + '/' : '';
+        return relative(relative(src, dirname(file)), path);
       },
     };
   }

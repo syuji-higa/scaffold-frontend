@@ -5,7 +5,7 @@
   "main": "",
   "scripts": {
     "build": "babel-node tasks.js",
-    "build-update-only": "babel-node tasks.js --pug-watch-src-only --pug-factory-watch-json-only",
+    "build-watch-src": "babel-node tasks.js --pug-watch-src --pug-factory-watch-json --stylus-watch-src",
     "build-php": "babel-node tasks.js --php",
     "production": "babel-node tasks.js --production",
     "esdoc": "esdoc -c esdoc.json",
@@ -27,7 +27,9 @@
     "chokidar": "^1.7.0",
     "iconv-lite": "^0.4.15",
     "mkdirp": "^0.5.1",
-    "pug": "^2.0.0-beta11"
+    "nib": "^1.1.2",
+    "pug": "^2.0.0-beta11",
+    "stylus": "^0.54.5"
   },
   "dependencies": {}
 }

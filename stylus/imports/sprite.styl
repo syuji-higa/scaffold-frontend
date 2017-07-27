@@ -1,0 +1,14 @@
+sprite-hash = {"images/btn/btn-off.png":{"url":"/images/btn.png","x":0,"y":0,"width":200,"height":40},"images/btn/btn-on.png":{"url":"/images/btn.png","x":0,"y":40,"width":200,"height":40},"images/circle/blue.png":{"url":"/images/circle.png","x":0,"y":0,"width":32,"height":32},"images/circle/green.png":{"url":"/images/circle.png","x":0,"y":32,"width":32,"height":32},"images/circle/red.png":{"url":"/images/circle.png","x":0,"y":64,"width":32,"height":32},"images/square/blue.png":{"url":"/images/square.png","x":0,"y":0,"width":32,"height":32},"images/square/green.png":{"url":"/images/square.png","x":0,"y":32,"width":32,"height":32},"images/square/red.png":{"url":"/images/square.png","x":0,"y":64,"width":32,"height":32},"sp/images/circle/blue.png":{"url":"/sp/images/circle.png","x":0,"y":0,"width":32,"height":32},"sp/images/circle/green.png":{"url":"/sp/images/circle.png","x":0,"y":32,"width":32,"height":32},"sp/images/circle/red.png":{"url":"/sp/images/circle.png","x":0,"y":64,"width":32,"height":32},"sp/images/square/blue.png":{"url":"/sp/images/square.png","x":0,"y":0,"width":32,"height":32},"sp/images/square/green.png":{"url":"/sp/images/square.png","x":0,"y":32,"width":32,"height":32},"sp/images/square/red.png":{"url":"/sp/images/square.png","x":0,"y":64,"width":32,"height":32}}
+sprite(filepath, scale = 1)
+  image-hash = sprite-hash[filepath]
+  if !image-hash
+    error('Not found image file ' + filepath + '.')
+  width: (image-hash.width * scale)px
+  height: (image-hash.height * scale)px
+  url = image-hash.url
+  background: url(url) no-repeat
+  background-position: (-1 * image-hash.x * scale)px (-1 * image-hash.y * scale)px
+  if scale != 1
+    background-size: (image-hash.width * scale)px, (image-hash.height * scale)px
+sprite-retina(filepath)
+  sprite filepath, 0.5

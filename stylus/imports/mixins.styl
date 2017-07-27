@@ -1,0 +1,312 @@
+use('../plugins/has-own-property.js')
+
+// ==============================
+// getter
+// ==============================
+
+get-deep-merge(a, b)
+  c = merge({}, a)
+  for key in b
+    if has-own-property(b, key)
+      if has-own-property(a, key) && (typeof(a[key]) == 'object' && typeof(b[key]) == 'object')
+        c[key] = get-deep-merge(a[key], b[key])
+      else
+        c[key] = b[key]
+  return c
+
+get-add-unit(val)
+  unit(val) ? val : unit(val, 'px')
+
+get-percent-size(size, base-size)
+  (size / base-size * 100)%
+
+// @example
+// ----------
+// get-img-size('../../htdocs/images/sample.png')  // image
+// get-img-size('images/sample/a.png')  // sprite
+// ----------
+get-img-size(imgpath)
+  if match('^.+(htdocs).+$', imgpath)
+    img-size = image-size(imgpath)
+    return {
+      width : img-size[0]
+      height: img-size[1]
+    }
+  else
+    return {
+      width : sprite-hash[imgpath].width
+      height: sprite-hash[imgpath].height
+    }
+
+
+// ==============================
+// size & position
+// ==============================
+
+size(width, height = width)
+  width get-add-unit(width)
+  height get-add-unit(height)
+
+min-size(width, height = width)
+  min-width get-add-unit(width)
+  min-height get-add-unit(height)
+
+max-size(width, height = width)
+  max-width get-add-unit(width)
+  max-height get-add-unit(height)
+
+// @example
+// ----------
+// centering()  // translate
+// centering(500)  // margin
+// centering(500, 200)  // margin
+// ----------
+centering(width = null, height = width)
+  if width
+    margin (width / -2)px 0 0 (width / -2)px
+  else
+    transform translateX(-50%) translateY(-50%)
+  absolute top 50% left 50%
+
+// @example
+// ----------
+// aspect-ratio('../../htdocs/images/sample.png')  // image
+// aspect-ratio('images/sample/a.png')  // sprite
+// aspect-ratio(500, 300)  // size
+// ----------
+aspect-ratio(width-or-imgpath, height = null)
+  if typeof(width-or-imgpath) is 'string'
+    img-size = get-img-size(width-or-imgpath)
+    width  = img-size.width
+    height = img-size.height
+  else
+    width = width-or-imgpath
+  position relative
+  &::before
+    content ""
+    display block
+    padding-top get-percent-size(height, width)
+  > *
+    position absolute
+
+
+// ==============================
+// replace
+// ==============================
+
+img-replace(indent-dir = 'left')
+  indent-set = {
+    'left' : -100%
+    'right':  100%
+  }
+  overflow hidden
+  text-indent: indent-set[indent-dir]
+  white-space nowrap
+
+
+// ==============================
+// shape
+// ==============================
+
+// @example
+// ----------
+// triangle()
+// triangle({ dirction: 'bottom', size: 15, color: #ccc, { right: 0 }})
+// ----------
+triangle(opts = {})
+  default-opts = {
+    dirction : 'left'
+    size     : 10
+    color    : #000
+    positions: { top: auto, right: auto, bottom: auto, left: auto }
+  }
+  opts = get-deep-merge(default-opts, opts)
+  color-set = {
+    'top'        : 0 0 1
+    'left'       : 0 1 0 0
+    'bottom'     : 1 0 0
+    'right'      : 0 0 0 1
+    'topLeft'    : 1 0 0 1
+    'topRight'   : 1 1 0 0
+    'bottomRight': 0 1 1 0
+    'bottomLeft' : 0 0 1 1
+  }
+  colors = null
+  for val in color-set[opts.dirction]
+    colors = colors (val ? opts.color : transparent)
+  content ""
+  display block
+  width 0
+  height 0
+  border-width: get-add-unit(opts.size)
+  border-style solid
+  border-color colors
+  position absolute
+  for prop, pos in opts.positions
+    {prop} pos
+
+
+// ==============================
+// animations
+// ==============================
+
+// @example
+// ----------
+// sprite-fade-hover('images/sample/a.png')
+// sprite-fade-hover('images/sample/a.png', {
+//   duration: .5, crossFade: true, suffixBefore: '_off', suffixAfter: '_on'
+// })
+// ----------
+sprite-fade-hover(image, opts = {})
+  default-opts = {
+    duration    : .2
+    crossFade   : false
+    suffixBefore: '-off'
+    suffixAfter : '-on'
+  }
+  opts = merge(default-opts, opts)
+  image-size = get-img-size(image + opts.suffixBefore + '.png')
+  width : (image-size.width)px
+  height: (image-size.height)px
+  position relative
+  animation: delayView (opts.duration)s linear
+  &::before, &::after
+    content ''
+    display block
+    absolute top 0 left 0
+  &::before
+    sprite(image + opts.suffixBefore + '.png')
+    if opts.crossFade
+      animation: fadeIn (opts.duration)s linear
+  &::after
+    opacity 0
+    sprite(image + opts.suffixAfter + '.png')
+    animation: fadeOut (opts.duration)s linear
+  &:hover
+    if opts.crossFade
+      &::before
+        opacity 0
+        animation: fadeOut (opts.duration)s linear
+    &::after
+      opacity 1
+      animation: fadeIn (opts.duration)s linear
+
+// @example
+// ----------
+// create-keyframes(sampleAnime, 3, 10, {
+//     '0': { opacity: 1 },
+//    '50': { opacity: 0 },
+//   '100': { opacity: 1 }
+// })
+// ----------
+create-keyframes(name, duration, interval, animationHash)
+  @keyframes name
+    durationRatio = duration / (duration + interval)
+    for progress, cssHash in animationHash
+      {durationRatio * progress}{unquote('%')}
+        for key, val in cssHash
+          {key} val
+
+
+// ==============================
+// nib override
+// ==============================
+
+opacity(val)
+  opacity val
+
+border-radius(vals...)
+  border-radius vals
+
+clearfix()
+  +cache('clearfix')
+    &::after
+      content ""
+      display block
+      clear both
+
+transform(vals...)
+  -webkit-transform vals
+  transform vals
+
+transform-origin(vals...)
+  -webkit-transform-origin vals
+  transform-origin vals
+
+transform-style(val)
+  -webkit-transform-style val
+  transform-style val
+
+backface-visibility(val)
+  -webkit-backface-visibility val
+  backface-visibility val
+
+perspective(val)
+  -webkit-perspective val
+  perspective val
+
+perspective-origin(vals...)
+  -webkit-perspective-origin vals
+  perspective-origin vals
+
+transition(vals...)
+  -webkit-transition vals
+  transition vals
+
+transition-property(vals...)
+  -webkit-transition-property vals
+  transition-property vals
+
+transition-duration(vals...)
+  -webkit-transition-duration vals
+  transition-duration vals
+
+transition-property(vals...)
+  -webkit-transition-property vals
+  transition-property vals
+
+transition-timing-function(vals...)
+  -webkit-transition-timing-function vals
+  transition-timing-function vals
+
+animation(vals...)
+  -webkit-animation vals
+  animation vals
+
+animation-name(vals...)
+  -webkit-animation-name vals
+  animation-name vals
+
+animation-duration(vals...)
+  -webkit-animation-duration vals
+  animation-duration vals
+
+animation-timing-function(vals...)
+  -webkit-animation-timing-function vals
+  animation-timing-function vals
+
+animation-delay(vals...)
+  -webkit-animation-delay vals
+  animation-delay vals
+
+animation-iteration-count(vals...)
+  -webkit-animation-iteration-count vals
+  animation-iteration-count vals
+
+animation-direction(vals...)
+  -webkit-animation-direction vals
+  animation-direction vals
+
+animation-fill-mode(vals...)
+  -webkit-animation-fill-mode vals
+  animation-fill-mode vals
+
+animation-play-state(vals...)
+  -webkit-animation-play-state vals
+  animation-play-state vals
+
+vendors = webkit official
+
+// ==============================
+// polyfiles
+// ==============================
