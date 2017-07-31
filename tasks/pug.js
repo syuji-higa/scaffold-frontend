@@ -1,86 +1,30 @@
+import PugBase from './pug-base';
 import config from '../tasks-config';
-import { readFileSync } from 'fs';
-import { join, relative, dirname } from 'path';
+import { join, relative } from 'path';
 import { mkfile } from './utility/file';
-import { glob } from './utility/glob';
-import FileCache from './utility/file-cache';
-import Log from './utility/log';
-import chokidar from 'chokidar';
 import pug from 'pug';
 import iconv from 'iconv-lite';
 
-export default class Pug {
+export default class Pug extends PugBase {
 
   constructor() {
-    this._log        = new Log('pug');
-    this._factoryLog = new Log('pug factory');
-    this._fileCache  = new FileCache();
-  }
-
-  /**
-   * @return {Promise}
-   */
-  start() {
-    return (async () => {
-      await this._buildAll();
-      this._watch();
-    })();
-  }
-
-  get _pugOpts() {
-    const { argv } = NS;
-    return {
-      pretty : !argv['production'],
-      filters: this._getFilters(),
-    };
+    super('pug');
   }
 
   _watch() {
-    const { root, src, tmp, factorys } = config.pug;
-    const { argv } = NS;
-    const { _fileCache } = this;
+    const { src, tmp } = config.pug;
 
     // init
-    chokidar.watch(join(root, '**/*.(pug|json)'), { persistent: false })
-      .on('add', (path) => {
-        _fileCache.set(path);
-      });
+    this._watchInit(join(src, '**/*.pug'));
+    this._watchInit(join(tmp, '**/*.pug'));
 
     // src
-    chokidar.watch(join(src, '**/*.pug'), { ignoreInitial: true })
-      .on('all', (event, path) => {
-        if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
-        console.log(`# ${ event } -> ${ path }`);
-        const { root: _root } = config.path;
-        this._build([relative(_root, path)]);
-      });
+    this._watchSrc(join(src, '**/*.pug'));
 
     // extend or include
+    const { argv } = NS;
     if(!argv['pug-watch-src']) {
-      chokidar.watch(join(tmp, '**/*.pug'), { ignoreInitial: true })
-        .on('all', (event, path) => {
-          if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
-          console.log(`# ${ event } -> ${ path }`);
-          this._buildAll();
-        });
-    }
-
-    // factorys json
-    chokidar.watch(join(factorys, '**/*.json'), { ignoreInitial: true })
-      .on('all', (event, path) => {
-        if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
-        console.log(`# ${ event } -> ${ path }`);
-        this._factoryBuild([relative(root, path)]);
-      });
-
-    // factorys template
-    if(!argv['pug-factory-watch-json']) {
-      chokidar.watch(join(factorys, '**/*.pug'), { ignoreInitial: true })
-        .on('all', (event, path) => {
-          if(!event.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
-          console.log(`# ${ event } -> ${ path }`);
-          this._factoryBuild([relative(root, path)]);
-        });
+      this._watchOther(join(tmp, '**/*.pug'));
     }
   }
 
@@ -88,124 +32,27 @@ export default class Pug {
    * @return {Promsie}
    */
   _buildAll() {
-    return (async () => {
-      const { src } = config.pug;
-      const { pugSet } = NS.curtFiles;
-      const _files      = await glob(join(src, '**/*.pug'));
-      const _curtFiles  = [];
-      const _otherFiles = [];
-      for(const file of _files) {
-        pugSet.has(file) ? _curtFiles.push(file) : _otherFiles.push(file);
-      }
-      if(_curtFiles.length) await this._build(_curtFiles);
-      if(_otherFiles.length) await this._build(_otherFiles);
-    })();
-  }
-
-  /**
-   * @param {Array<string>} files
-   * @return {Promise}
-   */
-  _build(files) {
-    const { charset, src, dest } = config.pug;
-    const { _log, _pugOpts } = this;
-    return (async () => {
-      _log.start();
-      await Promise.all(files.map((file) => {
-        return (async() => {
-          const _dest = join(dest, relative(src, file)).replace('.pug', '.html');
-          const _opts = Object.assign(_pugOpts, this._getMembers(file));
-          let _html = pug.renderFile(file, _opts);
-          if(charset !== 'utf8') {
-            _html = iconv.encode(_html, charset).toString();
-          }
-          await mkfile(_dest, _html);
-          console.log(`# Created -> ${ _dest }`);
-        })();
-      }));
-      _log.finish();
-    })();
-  }
-
-  /**
-   * @return {Promsie}
-   */
-  _factoryBuildAll() {
-    return (async () => {
-      const { factorys } = config.pug;
-      const _files = await glob(join(factorys, '**/*.json'));
-      if(_files.length) await this._factoryBuild(_files);
-    })();
-  }
-
-  /**
-   * @param {Array<string>} files
-   * @return {Promise}
-   */
-  _factoryBuild(files) {
-    const { _factoryLog, _pugOpts } = this;
-    const { charset, root, src, dest } = config.pug;
-    return (async () => {
-      _factoryLog.start();
-      await Promise.all(files.map((file) => {
-        const _buf  = readFileSync(join(root, file));
-        const _tmps = JSON.parse(_buf.toString());
-        return Promise.all(Object.entries(_tmps).map(([tmpFile, pages]) => {
-          const _tmpBuf   = readFileSync(join(root, tmpFile));
-          const _tmp      = _tmpBuf.toString();
-          const _splitTmp = _tmp.split('{{vars}}');
-          return Promise.all(Object.entries(pages).map(([pageFile, vals]) => {
-            return (async() => {
-              const _valsStr = Object.entries(vals).reduce((memo, [key, val]) => {
-                return `${ memo }  - var ${ key } = ${ JSON.stringify(val) }\n`;
-              }, '');
-              const _contents = _splitTmp[0] + _valsStr + _splitTmp[1];
-              const _members  = this._getMembers(join(root, pageFile));
-              const _opts     = Object.assign(_pugOpts, _members);
-              let _html = pug.render(_contents, _opts);
-              if(charset !== 'utf8') {
-                _html = iconv.encode(_html, charset).toString();
-              }
-              const _dest = join(dest, pageFile).replace('.pug', '.html');
-              await mkfile(_dest, _html);
-              console.log(`# Created -> ${ _dest }`);
-            })();
-          }));
-        }));
-      }));
-      _factoryLog.finish();
-    })();
-  }
-
-  _getFilters() {
-    return {
-      'do-nothing': (block) => {
-        const _indentData = block.match(/^\{\{indent=([0-9])\}\}\n/);
-        const _block = (() => {
-          if(!_indentData) return block;
-          const _notVarBlock = block.replace(_indentData[0], '');
-          let _indent = '';
-          for(let _i = 0; _indentData[1] > _i; _i++) _indent += ' ';
-          return _indent + _notVarBlock.replace(/\n/g, `\n${ _indent }`);
-        })();
-        return `\n${ _block }`;
-      },
-    };
+    const { src } = config.pug;
+    super._buildAll('pugSet', join(src, '**/*.pug'));
   }
 
   /**
    * @param {string} file
+   * @param {Promise}
    */
-  _getMembers(file) {
-    const { root, src } = config.pug;
-    const { production } = NS.argv;
-    return {
-      isProduction: production,
-      basedir     : root,
-      relative    : (path) => {
-        return relative(relative(src, dirname(file)), path);
-      },
-    };
+  _buildSingle(file) {
+    const { charset, src, dest } = config.pug;
+    const { _pugOpts } = this;
+    return (async() => {
+      const _dest = join(dest, relative(src, file)).replace('.pug', '.html');
+      const _opts = Object.assign(_pugOpts, this._getMembers(file));
+      let _html = pug.renderFile(file, _opts);
+      if(charset !== 'utf8') {
+        _html = iconv.encode(_html, charset).toString();
+      }
+      await mkfile(_dest, _html);
+      console.log(`# Created -> ${ _dest }`);
+    })();
   }
 
 }

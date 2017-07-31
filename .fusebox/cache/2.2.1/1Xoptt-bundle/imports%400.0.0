@@ -1,0 +1,120 @@
+FuseBox.pkg("imports@0.0.0", {}, function(___scope___){
+___scope___.file("utility/instance.js", function(exports, require, module, __filename, __dirname){
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var type_1 = require("../model/type");
+var element_1 = require("./element");
+/**
+ * incetance
+ */
+/**
+ * @param {Class} Cls
+ * @param {string} selector
+ * @param {...*} [opts]
+ * @return {Array<Instance>}
+ */
+exports.createInstance = function (Cls, selector) {
+    var opts = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        opts[_i - 2] = arguments[_i];
+    }
+    var _el = element_1.getElement(selector);
+    if (!_el)
+        return null;
+    if (_el instanceof HTMLCollection || _el instanceof NodeList) {
+        var _instances_1 = [];
+        Array.from(_el, function ($el) {
+            var _arg = [$el];
+            if (opts)
+                _arg.push.apply(_arg, opts);
+            _instances_1.push(new (Cls.bind.apply(Cls, [void 0].concat(_arg)))());
+        });
+        return _instances_1;
+    }
+    else if (_el instanceof HTMLElement) {
+        return new (Cls.bind.apply(Cls, [void 0].concat([_el, opts])))();
+    }
+};
+/**
+ * @param {Class} Cls
+ * @param {string} selector
+ * @param {...*} [opts]
+ * @return {Instance}
+ */
+exports.createSingleInstance = function (Cls, selector) {
+    var opts = [];
+    for (var _i = 2; _i < arguments.length; _i++) {
+        opts[_i - 2] = arguments[_i];
+    }
+    var _el = element_1.getElement(selector);
+    var _type = type_1.getType(_el);
+    if (!_el || !_type.match(/^(HTMLCollection|NodeList)$/) || !_el.length)
+        return;
+    var _arg = [_el];
+    if (opts)
+        _arg.push.apply(_arg, opts);
+    return new (Cls.bind.apply(Cls, [void 0].concat(_arg)))();
+};
+
+});
+___scope___.file("model/type.js", function(exports, require, module, __filename, __dirname){
+
+"use strict";
+/**
+ * index
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+var toString = Object.prototype.toString;
+/**
+ * @param {*} target
+ * @return {string}
+ */
+exports.getType = function (target) {
+    var _strs = toString.call(target).match(/^\[object (.+)\]$/);
+    if (!_strs)
+        return;
+    var _type = _strs[1];
+    var _elStrs = _type.match(/^HTML.+Element$/);
+    return _elStrs ? 'Element' : _type;
+};
+
+});
+___scope___.file("utility/element.js", function(exports, require, module, __filename, __dirname){
+
+"use strict";
+/**
+ * element
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+/**
+ * @param {string} str
+ * @param {Element} [$el]
+ */
+exports.getElement = function (str, $el) {
+    if ($el === void 0) { $el = document; }
+    if (str.match(/^\#[^\s]+$/)) {
+        return $el.getElementById(str.replace('#', ''));
+    }
+    if (str.match(/^\.[^\s]+$/)) {
+        return $el.getElementsByClassName(str.replace('.', ''));
+    }
+    if (str.match(/^[^\s]+$/)) {
+        return $el.getElementsByTagName(str);
+    }
+    return $el.querySelectorAll(str);
+};
+
+});
+___scope___.file("view/sample.js", function(exports, require, module, __filename, __dirname){
+
+class Sample {
+  say() {
+    return 'Hello World';
+  }
+}
+
+export default Sample;
+
+});
+});

@@ -2,7 +2,7 @@ const charset = 'utf8';
 const dest    = 'htdocs';
 const pug     = 'pug';
 const stylus  = 'stylus';
-const js      = 'js';
+const fusebox = 'fusebox';
 
 export default {
   path: {
@@ -24,11 +24,11 @@ export default {
     imports: `${ stylus }/imports`,
     dest   : dest,
   },
-  js: {
+  fusebox: {
     charset: charset,
-    root   : js,
-    src    : `${ js }/src`,
-    imports: `${ js }/imports`,
+    root   : fusebox,
+    src    : `${ fusebox }/src`,
+    imports: `${ fusebox }/imports`,
     dest   : dest,
   },
   deletes: [
