@@ -1,5 +1,5 @@
 (function(FuseBox){FuseBox.$fuse$=FuseBox;
-FuseBox.pkg("default", {}, function(___scope___){
+FuseBox.pkg("default", {"imports":"0.0.0"}, function(___scope___){
 ___scope___.file("scripts/bundle.js", function(exports, require, module, __filename, __dirname){
 
 'use strict';
@@ -145,13 +145,18 @@ exports.getElement = function (str, $el) {
 });
 ___scope___.file("view/sample.js", function(exports, require, module, __filename, __dirname){
 
-class Sample {
-  say() {
-    return 'Hello World';
-  }
-}
-
-export default Sample;
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var Sample = (function () {
+    function Sample() {
+        console.log('ok');
+    }
+    Sample.prototype.say = function () {
+        return 'Hello World';
+    };
+    return Sample;
+}());
+exports.default = Sample;
 
 });
 });

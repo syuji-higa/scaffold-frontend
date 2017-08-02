@@ -1,8 +1,10 @@
 class Sample {
+  constructor() {
+    console.log('ok');
+  }
   say() {
-    const a = 'a';
     return 'Hello World';
   }
 }
 
-export default Sample;
+export { Sample as default };
