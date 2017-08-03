@@ -33,10 +33,11 @@ export default {
     dest   : dest,
   },
   image: {
-    root  : image,
-    minify: `${ image }/minify`,
-    sprite: `${ image }/sprite`,
-    dest  : dest,
+    root     : image,
+    minify   : `${ image }/minify`,
+    sprite   : `${ image }/sprite`,
+    dest     : dest,
+    styleDest: `${ stylus }/imports/sprite.styl`,
   },
   deletes: [
     'htdocs/**/.DS_Store', 'htdocs/**/Thumb.db',
