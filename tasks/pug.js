@@ -33,7 +33,7 @@ export default class Pug extends PugBase {
    */
   _buildAll() {
     const { src } = config.pug;
-    super._buildAll('pugSet', join(src, '**/*.pug'));
+    return super._buildAll('pugSet', join(src, '**/*.pug'));
   }
 
   /**

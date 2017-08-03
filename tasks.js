@@ -18,7 +18,7 @@ const { argv } = NS;
 const isProduction = argv['production'];
 
 const firstTasks = [
-  new Pug().start(), new PugFactory().start(), new Stylus().start(), new Fusebox().start()
+  new Pug().start(), new PugFactory().start(), new Stylus().start(), new Fusebox().start(),
 ];
 if(isProduction) {
   firstTasks.push(new Imagemin().start());

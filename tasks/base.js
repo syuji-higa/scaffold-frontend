@@ -12,6 +12,7 @@ export default class Base {
    * @param {string} type
    */
   constructor(type) {
+    this._type       = type;
     this._log        = new Log(type);
     this._fileCache  = new FileCache();
   }
@@ -21,7 +22,12 @@ export default class Base {
    */
   start() {
     return (async () => {
-      await this._buildAll();
+      const { argv } = NS;
+      if(!argv['not-first-build']) {
+        await this._buildAll();
+      }
+      const { _type } = this;
+      new Log(`watch ${ _type }`).start();
       this._watch();
     })();
   }

@@ -41,7 +41,7 @@ export default class Fusebox extends Base {
    */
   _buildAll() {
     const { src } = config.fusebox;
-    super._buildAll('fuseboxSet', join(src, '**/*.js'));
+    return super._buildAll('fuseboxSet', join(src, '**/*.js'));
   }
 
   /**

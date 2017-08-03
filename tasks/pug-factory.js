@@ -9,7 +9,7 @@ import iconv from 'iconv-lite';
 export default class PugFactory extends PugBase {
 
   constructor() {
-    super('pug factory');
+    super('pug-factory');
   }
 
   _watch() {
@@ -33,7 +33,7 @@ export default class PugFactory extends PugBase {
    */
   _buildAll() {
     const { factorys } = config.pug;
-    super._buildAll('pugSet', join(factorys, '**/*.json'));
+    return super._buildAll('pugSet', join(factorys, '**/*.json'));
   }
 
   /**

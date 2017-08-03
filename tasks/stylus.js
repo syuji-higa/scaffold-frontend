@@ -34,7 +34,7 @@ export default class Stylus extends Base {
    */
   _buildAll() {
     const { src } = config.stylus;
-    super._buildAll('stylusSet', join(src, '**/*.styl'));
+    return super._buildAll('stylusSet', join(src, '**/*.styl'));
   }
 
   /**

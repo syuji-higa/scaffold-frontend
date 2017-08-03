@@ -32,7 +32,6 @@ export default class BrowserSync {
         }, resolve);
       })
       this._watch();
-      _log.finish();
     })();
   }
 
