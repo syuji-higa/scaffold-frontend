@@ -1,9 +1,9 @@
 import config from '../tasks-config';
 import { readFileSync } from 'fs';
 import { relative } from 'path';
-import { glob } from './utility/glob';
 import FileCache from './utility/file-cache';
 import Log from './utility/log';
+import { glob } from './utility/glob';
 import chokidar from 'chokidar';
 
 export default class Base {
@@ -68,33 +68,33 @@ export default class Base {
   }
 
   /**
-   * @param {string} filesName
-   * @param {string} filePath
+   * @param {string} name
+   * @param {string} path
    * @return {Promsie}
    */
-  _buildAll(filesName, filePath) {
+  _buildAll(name, path) {
     return (async () => {
-      const _curtFilesSet = NS.curtFiles[filesName];
-      const _files        = await glob(filePath);
-      const _curtFiles    = [];
-      const _otherFiles   = [];
-      for(const file of _files) {
-        _curtFilesSet.has(file) ? _curtFiles.push(file) : _otherFiles.push(file);
+      const _curtPathSet = NS.curtFiles[name];
+      const _paths       = await glob(path);
+      const _curtPaths   = [];
+      const _otherPaths  = [];
+      for(const p of _paths) {
+        _curtPathSet.has(p) ? _curtPaths.push(p) : _otherPaths.push(p);
       }
-      if(_curtFiles.length) await this._build(_curtFiles);
-      if(_otherFiles.length) await this._build(_otherFiles);
+      if(_curtPaths.length) await this._buildMultiple(_curtPaths);
+      if(_otherPaths.length) await this._buildMultiple(_otherPaths);
     })();
   }
 
   /**
-   * @param {Array<string>} files
+   * @param {Array<string>} paths
    * @return {Promise}
    */
-  _build(files) {
+  _buildMultiple(paths) {
     const { _log } = this;
     return (async () => {
       _log.start();
-      await Promise.all(files.map((file) => this._buildSingle(file)));
+      await Promise.all(paths.map((p) => this._build(p)));
       _log.finish();
     })();
   }
@@ -103,6 +103,6 @@ export default class Base {
    * @param {string}
    * @return {Promise}
    */
-  _buildSingle(file) {}
+  _build(file) {}
 
 }

@@ -19,13 +19,13 @@ export default class Clean {
       const { deletes } = config;
 
       _log.start();
-      const _delFiles = await glob(deletes);
-      if(_delFiles) {
-        await Promise.all(_delFiles.map((file) => {
+      const _paths = await glob(deletes);
+      if(_paths) {
+        await Promise.all(_paths.map((path) => {
           return new Promise((resolve) => {
-            unlink(file, (err) => {
+            unlink(path, (err) => {
               if(err) console.log(err);
-              console.log(`#Deleted -> ${ file }`);
+              console.log(`#Deleted -> ${ path }`);
               resolve();
             });
           });

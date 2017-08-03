@@ -12,6 +12,10 @@ import iconv from 'iconv-lite';
 
 export default class Fusebox extends Base {
 
+  get _notMinifyFileNameSet() {
+    return new Set(['vendor']);
+  }
+
   constructor() {
     super('fusebox');
   }
@@ -44,21 +48,22 @@ export default class Fusebox extends Base {
    * @param {string} file
    * @param {Promise}
    */
-  _buildSingle(file) {
+  _build(file) {
     const { charset, src, dest } = config.fusebox;
     const { argv } = NS;
     return (async() => {
-      const _rootPath = relative(src, file);
-      const _dest     = join(dest, _rootPath);
+      const _root     = relative(src, file);
+      const _dest     = join(dest, _root);
       const _destDir  = dirname(_dest);
-      const _destFile = basename(_dest, '.js');
+      const _destName = basename(_dest, '.js');
       const _plugins  = [
         BabelPlugin({
           extensions: ['.js'],
           test      : /\.js$/,
         }),
       ];
-      if(argv['production'] && _destFile !== 'vendor') {
+      const { _notMinifyFileNameSet } = this;
+      if(argv['production'] && !_notMinifyFileNameSet.has(_destName)) {
         _plugins.push(UglifyESPlugin());
       }
       const _fuse = FuseBox.init({
@@ -74,10 +79,11 @@ export default class Fusebox extends Base {
         },
         plugins: _plugins,
       });
-      _fuse.bundle(_destFile).instructions(`>${ _rootPath }`).target('browser');
+      _fuse.bundle(_destName).instructions(`>${ _root }`).target('browser');
       await _fuse.run();
+      // TODO character code convert
       // await _fuse.run().then((producer) => {
-      //   const _bundle = producer.bundles.get(_destFile);
+      //   const _bundle = producer.bundles.get(_destName);
       //   console.log(_bundle.context.output.lastPrimaryOutput);
       // });
       // if(charset !== 'utf8') {

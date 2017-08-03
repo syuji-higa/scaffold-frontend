@@ -38,17 +38,17 @@ export default class Stylus extends Base {
   }
 
   /**
-   * @param {string} file
+   * @param {string} path
    * @param {Promise}
    */
-  _buildSingle(file) {
+  _build(path) {
     const { path: { root }, stylus: { charset, src, dest } } = config;
     const { argv } = NS;
     return (async() => {
-      const _str = readFileSync(join(root, file), 'utf-8');
+      const _str = readFileSync(join(root, path), 'utf-8');
       const _stylus = stylus(_str)
         .use(nib())
-        .set('filename', basename(file))
+        .set('filename', basename(path))
         .set('include css', true)
         .set('resolve url', true)
         .define('url', stylus.resolver())
@@ -58,7 +58,7 @@ export default class Stylus extends Base {
       if(charset !== 'utf8') {
         _css = iconv.encode(_css, charset).toString();
       }
-      const _dest = join(dest, relative(src, file)).replace('.styl', '.css');
+      const _dest = join(dest, relative(src, path)).replace('.styl', '.css');
       await mkfile(_dest, _css);
       console.log(`# Created -> ${ _dest }`);
       if(!argv['production']) {

@@ -37,16 +37,16 @@ export default class Pug extends PugBase {
   }
 
   /**
-   * @param {string} file
+   * @param {string} path
    * @param {Promise}
    */
-  _buildSingle(file) {
+  _build(path) {
     const { charset, src, dest } = config.pug;
     const { _pugOpts } = this;
     return (async() => {
-      const _dest = join(dest, relative(src, file)).replace('.pug', '.html');
-      const _opts = Object.assign(_pugOpts, this._getMembers(file));
-      let _html = pug.renderFile(file, _opts);
+      const _dest = join(dest, relative(src, path)).replace('.pug', '.html');
+      const _opts = Object.assign(_pugOpts, this._getMembers(path));
+      let _html = pug.renderFile(path, _opts);
       if(charset !== 'utf8') {
         _html = iconv.encode(_html, charset).toString();
       }

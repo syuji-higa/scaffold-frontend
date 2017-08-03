@@ -5,16 +5,13 @@ import mkdirp from 'mkdirp';
 /**
  * @param {string} path
  * @param {string} data
- * @param {function} [callback]
+ * @param {Object|string} [opts]
  * @return {Promise}
  */
-export const mkfile = (path, data, callback = null) => {
+export const mkfile = (path, data, opts = {}) => {
   return new Promise((resolve) => {
     mkdirp(dirname(path), () => {
-      writeFile(path, data, () => {
-        if(callback) callback();
-        resolve();
-      });
+      writeFile(path, data, opts, resolve);
     });
   });
 };

@@ -3,6 +3,7 @@ const dest    = 'htdocs';
 const pug     = 'pug';
 const stylus  = 'stylus';
 const fusebox = 'fusebox';
+const image   = 'image';
 
 export default {
   path: {
@@ -30,6 +31,12 @@ export default {
     src    : `${ fusebox }/src`,
     imports: `${ fusebox }/imports`,
     dest   : dest,
+  },
+  image: {
+    root  : image,
+    minify: `${ image }/minify`,
+    sprite: `${ image }/sprite`,
+    dest  : dest,
   },
   deletes: [
     'htdocs/**/.DS_Store', 'htdocs/**/Thumb.db',

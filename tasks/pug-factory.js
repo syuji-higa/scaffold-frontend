@@ -16,7 +16,7 @@ export default class PugFactory extends PugBase {
     const { factorys } = config.pug;
 
     // init
-    this._watchInit(join(factorys, '**/*.(pug|json)'));
+    this._watchInit(join(factorys, '**/*.+(pug|json)'));
 
     // factorys json
     this._watchSrc(join(factorys, '**/*.json'));
@@ -37,13 +37,13 @@ export default class PugFactory extends PugBase {
   }
 
   /**
-   * @param {string} files
+   * @param {string} path
    * @return {Promise}
    */
-  _buildSingle(file) {
+  _build(path) {
     const { _pugOpts } = this;
     const { charset, root, dest } = config.pug;
-    const _buf  = readFileSync(file);
+    const _buf  = readFileSync(path);
     const _tmps = JSON.parse(_buf.toString());
     return Promise.all(Object.entries(_tmps).map(([tmpFile, pages]) => {
       const _tmpBuf   = readFileSync(join(root, tmpFile));
