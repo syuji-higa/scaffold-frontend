@@ -8,6 +8,7 @@ import Fusebox from './tasks/fusebox';
 import Imagemin from './tasks/imagemin';
 import Sprite from './tasks/sprite';
 import Clean from './tasks/clean';
+import UrlList from './tasks/url-list';
 
 global.NS = {};
 NS.argv      = minimist(process.argv.slice(2));
@@ -31,5 +32,6 @@ if(isProduction) {
   if(isProduction) {
     await new Clean().start();
   }
+  await new UrlList().start();
   await new BrowserSync().start();
 })();

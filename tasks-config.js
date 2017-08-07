@@ -4,6 +4,7 @@ const pug     = 'pug';
 const stylus  = 'stylus';
 const fusebox = 'fusebox';
 const image   = 'image';
+const urlList = '.url-list';
 
 export default {
   path: {
@@ -39,8 +40,12 @@ export default {
     dest     : dest,
     styleDest: `${ stylus }/imports/sprite.styl`,
   },
+  urlList: {
+    root: urlList,
+    tmp : `${ urlList }/index.tmp`,
+    dest: `${ urlList }/index.html`,
+  },
   deletes: [
-    'htdocs/**/.DS_Store', 'htdocs/**/Thumb.db',
-    'htdocs/url-list.html', 'htdocs/**/*.map',
+    'htdocs/**/.DS_Store', 'htdocs/**/Thumb.db', 'htdocs/**/*.map',
   ],
 }

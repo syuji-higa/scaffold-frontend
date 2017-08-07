@@ -1,5 +1,5 @@
 import config from '../tasks-config';
-import { join, relative, dirname, extname } from 'path';
+import { join, relative, dirname } from 'path';
 import Log from './utility/log';
 import { glob } from './utility/glob';
 import { mkfile } from './utility/file';

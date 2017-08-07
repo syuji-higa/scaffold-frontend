@@ -1,0 +1,93 @@
+<html>
+<head>
+<title>URL LIST</title>
+<meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+<style>
+body {
+  margin: 0;
+  font-size: 14px;
+}
+body > ul {
+  margin: 0;
+}
+ul {
+  padding-left: 0;
+  margin: 0;
+  list-style: none;
+  padding-bottom: 8px;
+}
+li {
+  border-left: 1px solid #ddd;
+}
+a, span {
+  display: block;
+  color: #666;
+}
+span {
+  padding: 3px 8px;
+  font-style: italic;
+}
+a {
+  background-color: #eee;
+  padding: 5px 8px;
+  border-bottom: 1px solid #ddd;
+  text-decoration: none;
+}
+@media screen and (min-width: 737px) {
+  body {
+    padding: 40px;
+  }
+  ul {
+    margin-left: 20px;
+  }
+  a:hover {
+    background-color: #999;
+    color: #fff;
+  }
+}
+@media screen and (max-width: 736px) {
+  body {
+    padding: 15px;
+  }
+  ul {
+    margin-left: 15px;
+  }
+}
+</style>
+<script>
+const root = 'http://domain.com/';
+const data = {{data}};
+window.addEventListener('DOMContentLoaded', function() {
+  const { hostname, port } = location;
+  const _root = hostname ? (port ? (hostname + ':3000') : hostname) : root;
+  const _set = (d, $p) => {
+    const _$ul = document.createElement('ul');
+    Object.keys(d).forEach((key) => {
+      const _$li = document.createElement('li');
+      const _val = d[key];
+      if(typeof _val === 'string') {
+        const _$a = document.createElement('a');
+        _$a.textContent = key;
+        _$a.href        = _root + _val.replace(/index\.(html|php)$/, '');
+        _$li.appendChild(_$a);
+      } else {
+        const _$span = document.createElement('span');
+        _$span.textContent = key;
+        _$li.appendChild(_$span);
+      }
+      _$ul.appendChild(_$li);
+      $p.appendChild(_$ul);
+      if(_val && _val instanceof Object) {
+        _set(_val, _$li);
+      }
+    });
+  };
+  const _$f = document.createDocumentFragment();
+  _set(data, _$f);
+  document.body.appendChild(_$f);
+});
+</script>
+</head>
+<body>
+</body>
+</html>

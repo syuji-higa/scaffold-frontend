@@ -28,6 +28,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "browser-sync": "^2.18.8",
     "chokidar": "^1.7.0",
+    "deep-assign": "^2.0.0",
     "fuse-box": "^2.2.1",
     "iconv-lite": "^0.4.15",
     "imagemin": "^5.3.1",
