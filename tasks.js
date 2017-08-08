@@ -17,19 +17,24 @@ NS.curtFiles = {
 };
 
 const { argv } = NS;
-const isProduction = argv['production'];
+const _isAllTask = !argv['coding'] && !argv['scripting'];
 
-const firstTasks = [
-  new Pug().start(), new PugFactory().start(),
-  new Stylus().start(), new Fusebox().start(), new Sprite().start(),
-];
-if(isProduction) {
+const firstTasks = [];
+if(_isAllTask || argv['coding']) {
+  firstTasks.concat([
+    new Pug().start(), new PugFactory().start(), new Stylus().start(), new Sprite().start(),
+  ]);
+}
+if(_isAllTask || argv['scripting']) {
+  firstTasks.push(new Fusebox().start());
+}
+if(argv['production']) {
   firstTasks.push(new Imagemin().start());
 }
 
 (async() => {
   await Promise.all(firstTasks);
-  if(isProduction) {
+  if(argv['production']) {
     await new Clean().start();
   }
   await new UrlList().start();

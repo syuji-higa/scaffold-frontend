@@ -24,7 +24,7 @@ export default class Stylus extends Base {
 
     // extend or include
     const { argv } = NS;
-    if(argv['all-watch'] || argv['stylus-all-watch']) {
+    if(!argv['watch-output-only'] && !argv['watch-stylus-output-only']) {
       this._watchOther(join(imports, '**/*.styl'));
     }
   }

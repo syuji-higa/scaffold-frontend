@@ -4,15 +4,11 @@
   "description": "frontend scaffold",
   "main": "",
   "scripts": {
-    "watch": "babel-node tasks.js --all-watch",
-    "watch:watch-src-only": "babel-node tasks.js",
-    "build": "babel-node tasks.js --build --all-watch",
-    "build:watch-src-only": "babel-node tasks.js --build",
-    "build:production": "babel-node tasks.js --build --all-watch --production",
+    "watch": "babel-node tasks.js",
+    "build": "babel-node tasks.js --build",
+    "build:production": "babel-node tasks.js --build --production",
     "imagemin": "babel-node task-imagemin.js",
-    "esdoc": "esdoc -c esdoc.json",
-    "php-server": "php -S 0.0.0.0:3010 -t htdocs",
-    "test": "karma start"
+    "php-server": "php -S 0.0.0.0:3010 -t htdocs"
   },
   "repository": {
     "Type": "git",

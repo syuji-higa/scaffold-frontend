@@ -31,7 +31,7 @@ export default class Fusebox extends Base {
 
     // extend or include
     const { argv } = NS;
-    if(argv['all-watch'] || argv['fusebox-all-watch']) {
+    if(!argv['watch-output-only'] && !argv['watch-fusebox-output-only']) {
       this._watchOther(join(imports, '**/*.js'));
     }
   }

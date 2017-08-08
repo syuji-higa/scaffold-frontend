@@ -23,7 +23,7 @@ export default class Pug extends PugBase {
 
     // extend or include
     const { argv } = NS;
-    if(argv['all-watch'] || argv['pug-all-watch']) {
+    if(!argv['watch-output-only'] && !argv['watch-pug-output-only']) {
       this._watchOther(join(tmp, '**/*.pug'));
     }
   }

@@ -49,6 +49,8 @@ PHP のビルトインサーバを起動
 
 | コマンド                        |
 |:--------------------------------|
+| --coding                        |
+| --scripting                     |
 | --watch-output-only             |
 | --watch-pug-output-only         |
 | --watch-pug-factory-output-only |
@@ -62,6 +64,12 @@ PHP のビルトインサーバを起動
 # 例
 $ npm run build -- --php
 ```
+
+### --coding
+fusebox タスクを実行しない
+
+### --scripting
+pug、stylus、sprite タスクを実行しない
 
 ### --watch-output-only
 出力ファイルのみ監視

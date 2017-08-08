@@ -23,7 +23,7 @@ export default class PugFactory extends PugBase {
 
     // factory template
     const { argv } = NS;
-    if(argv['all-watch'] || argv['pug-factory-all-watch']) {
+    if(!argv['watch-output-only'] && !argv['watch-pug-factory-output-only']) {
       this._watchOther(join(factorys, '**/*.pug'));
     }
   }
