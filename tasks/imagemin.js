@@ -14,7 +14,7 @@ export default class Imagemin {
   constructor() {
     this._log = new Log('imagemin');
     this._plugins = {
-      png: pngquant({ quality: 80, speed: 1 }),
+      png: pngquant({ quality: 100, speed: 1 }),
       jpg: jpegtran({ progressive: true }),
       gif: gifsicle(),
       svg: svgo(),

@@ -4,8 +4,17 @@ import Log from './utility/log';
 import { glob } from './utility/glob';
 import { mkfile } from './utility/file';
 import Spritesmith from 'spritesmith';
+import imagemin from 'imagemin';
+import pngquant from 'imagemin-pngquant';
 
 export default class Spraite {
+
+  get _pngquantOpts() {
+    return {
+      quality: 100,
+      speed  : 1,
+    };
+  }
 
   get _spriteOpts() {
     return {
@@ -89,7 +98,7 @@ sprite-retina(filepath)
    */
   _spritesmith(key, paths) {
     const { sprite, dest } = config.image;
-    const { _spriteOpts } = this;
+    const { _pngquantOpts, _spriteOpts } = this;
 
     return new Promise((resolve) => {
       Spritesmith.run(Object.assign({ src: paths }, _spriteOpts), (err, result) => {
@@ -98,7 +107,8 @@ sprite-retina(filepath)
         const _key  = `${ key }.png`;
         const _dest = join(dest, _key);
         (async() => {
-          await mkfile(_dest, image.toString('base64'), 'base64');
+          const _img = await this._getImgBuf(image);
+          await mkfile(_dest, _img.toString('base64'), 'base64');
           console.log(`# Created -> ${ _dest }`);
           resolve(Object.entries(coordinates).reduce((memo, [path, style]) => {
             memo[relative(sprite, path)] = Object.assign(style, { url: _key });
@@ -129,6 +139,23 @@ ${ _mixin }`;
       Object.assign(memo, obj);
       return memo;
     }, {});
+  }
+
+  /**
+   * @param {Buffer} buf
+   */
+  _getImgBuf(buf) {
+    const { argv } = NS;
+    if(argv['production']) {
+      const { _pngquantOpts } = this;
+      return imagemin.buffer(buf, {
+        plugins: [pngquant(_pngquantOpts)],
+      });
+    } else {
+      return new Promise((resolve) => {
+        return resolve(buf);
+      });
+    }
   }
 
 }

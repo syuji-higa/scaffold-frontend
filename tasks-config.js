@@ -18,7 +18,7 @@ export default {
     tmp     : `${ pug }/(extends|includes)`,
     factorys: `${ pug }/factorys`,
     dest    : dest,
-    php     : null,  // null, 'all', ['index.pug', 'sp/index.pug']
+    php     : [],  // 'all', ['index.pug', 'sp/index.pug']
   },
   stylus: {
     charset: charset,
