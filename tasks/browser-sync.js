@@ -4,7 +4,8 @@ import bs from 'browser-sync';
 import Log from './utility/log';
 import chokidar from 'chokidar';
 
-const browserSync = bs.create();
+const browserSync        = bs.create();
+const browserSyncUrlList = bs.create();
 
 export default class BrowserSync {
 
@@ -16,21 +17,48 @@ export default class BrowserSync {
    * @return {Promsie}
    */
   start() {
-    const { dest } = config.path;
+    const { path, urlList } = config;
+    const { argv } = NS;
     const { _log } = this;
     return (async () => {
       _log.start();
-      await new Promise((resolve) => {
-        browserSync.init({
-          server: {
-            baseDir   : dest,
-            middleware: this._middleware,
-          },
-          open           : false,
-          notify         : false,
-          reloadOnRestart: true,
-        }, resolve);
-      })
+      await Promise.all([
+        new Promise((resolve) => {
+          browserSyncUrlList.init({
+            server: {
+              baseDir: urlList.root,
+            },
+            port                : 3002,
+            ui                  : false,
+            open                : false,
+            notify              : false,
+            reloadOnRestart     : true,
+            scrollProportionally: false,
+          }, resolve);
+        }),
+        new Promise((resolve) => {
+          const _opts = {
+            open                : false,
+            notify              : false,
+            reloadOnRestart     : true,
+            scrollProportionally: false,
+          };
+          if(!argv['php']) {
+            Object.assign(_opts, {
+              server: {
+                middleware: this._middleware,
+                baseDir   : path.dest,
+              },
+            });
+          } else {
+            Object.assign(_opts, {
+              middleware: this._middleware,
+              proxy     : '0.0.0.0:3010',
+            });
+          }
+          browserSync.init(_opts, resolve);
+        }),
+      ]);
       this._watch();
     })();
   }

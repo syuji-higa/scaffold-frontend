@@ -31,7 +31,7 @@ export default class Fusebox extends Base {
 
     // extend or include
     const { argv } = NS;
-    if(!argv['fusebox-watch-src']) {
+    if(argv['all-watch'] || argv['fusebox-all-watch']) {
       this._watchOther(join(imports, '**/*.js'));
     }
   }

@@ -23,7 +23,7 @@ export default class Base {
   start() {
     return (async () => {
       const { argv } = NS;
-      if(!argv['not-first-build']) {
+      if(argv['build']) {
         await this._buildAll();
       }
       const { _type } = this;

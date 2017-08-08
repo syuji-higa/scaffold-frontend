@@ -23,7 +23,7 @@ export default class PugFactory extends PugBase {
 
     // factory template
     const { argv } = NS;
-    if(!argv['pug-factory-watch-src']) {
+    if(argv['all-watch'] || argv['pug-factory-all-watch']) {
       this._watchOther(join(factorys, '**/*.pug'));
     }
   }
@@ -49,19 +49,20 @@ export default class PugFactory extends PugBase {
       const _tmpBuf   = readFileSync(join(root, tmpFile));
       const _tmp      = _tmpBuf.toString();
       const _splitTmp = _tmp.split('{{vars}}');
-      return Promise.all(Object.entries(pages).map(([pageFile, vals]) => {
+      return Promise.all(Object.entries(pages).map(([srcPath, vals]) => {
         return (async() => {
           const _valsStr = Object.entries(vals).reduce((memo, [key, val]) => {
             return `${ memo }  - var ${ key } = ${ JSON.stringify(val) }\n`;
           }, '');
           const _contents = _splitTmp[0] + _valsStr + _splitTmp[1];
-          const _members  = this._getMembers(join(root, pageFile));
+          const _members  = this._getMembers(join(root, srcPath));
           const _opts     = Object.assign(_pugOpts, _members);
           let _html = pug.render(_contents, _opts);
           if(charset !== 'utf8') {
             _html = iconv.encode(_html, charset).toString();
           }
-          const _dest = join(dest, pageFile).replace('.pug', '.html');
+          const _ext  = this._getExt(srcPath);
+          const _dest = join(dest, srcPath).replace('.pug', _ext);
           await mkfile(_dest, _html);
           console.log(`# Created -> ${ _dest }`);
         })();

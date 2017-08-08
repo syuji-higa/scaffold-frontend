@@ -1,6 +1,7 @@
 import Base from './base';
 import config from '../tasks-config';
 import { relative, dirname } from 'path';
+import { getType } from './utility/type';
 
 export default class PugBase extends Base {
 
@@ -41,6 +42,18 @@ export default class PugBase extends Base {
         return relative(relative(src, dirname(file)), path);
       },
     };
+  }
+
+  /**
+   * @param {string} path
+   */
+  _getExt(path) {
+    const { php } = config.pug;
+    if(!/^(Array|String)$/.test(getType(php))) {
+      throw new TypeError('"php" is not string or array type.');
+    }
+    if(php === 'all') return '.php';
+    return php.includes(path) ? '.php' : '.html';
   }
 
 }

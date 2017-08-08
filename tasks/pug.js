@@ -23,7 +23,7 @@ export default class Pug extends PugBase {
 
     // extend or include
     const { argv } = NS;
-    if(!argv['pug-watch-src']) {
+    if(argv['all-watch'] || argv['pug-all-watch']) {
       this._watchOther(join(tmp, '**/*.pug'));
     }
   }
@@ -44,7 +44,8 @@ export default class Pug extends PugBase {
     const { charset, src, dest } = config.pug;
     const { _pugOpts } = this;
     return (async() => {
-      const _dest = join(dest, relative(src, path)).replace('.pug', '.html');
+      const _ext  = this._getExt(relative(src, path));
+      const _dest = join(dest, relative(src, path)).replace('.pug', _ext);
       const _opts = Object.assign(_pugOpts, this._getMembers(path));
       let _html = pug.renderFile(path, _opts);
       if(charset !== 'utf8') {
