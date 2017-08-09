@@ -22,10 +22,7 @@ export default class Pug extends PugBase {
     this._watchSrc(join(src, '**/*.pug'));
 
     // extend or include
-    const { argv } = NS;
-    if(!argv['watch-output-only'] && !argv['watch-pug-output-only']) {
-      this._watchOther(join(tmp, '**/*.pug'));
-    }
+    this._watchOther(join(tmp, '**/*.pug'));
   }
 
   /**
@@ -33,7 +30,7 @@ export default class Pug extends PugBase {
    */
   _buildAll() {
     const { src } = config.pug;
-    return super._buildAll('pugSet', join(src, '**/*.pug'));
+    return super._buildAll('pug', join(src, '**/*.pug'));
   }
 
   /**

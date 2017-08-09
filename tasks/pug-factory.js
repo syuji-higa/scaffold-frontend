@@ -22,10 +22,7 @@ export default class PugFactory extends PugBase {
     this._watchSrc(join(factorys, '**/*.json'));
 
     // factory template
-    const { argv } = NS;
-    if(!argv['watch-output-only'] && !argv['watch-pug-factory-output-only']) {
-      this._watchOther(join(factorys, '**/*.pug'));
-    }
+    this._watchOther(join(factorys, '**/*.pug'));
   }
 
   /**
@@ -33,7 +30,7 @@ export default class PugFactory extends PugBase {
    */
   _buildAll() {
     const { factorys } = config.pug;
-    return super._buildAll('pugSet', join(factorys, '**/*.json'));
+    return super._buildAll('pug', join(factorys, '**/*.json'));
   }
 
   /**

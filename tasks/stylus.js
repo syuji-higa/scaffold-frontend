@@ -23,10 +23,7 @@ export default class Stylus extends Base {
     this._watchSrc(join(src, '**/*.styl'));
 
     // extend or include
-    const { argv } = NS;
-    if(!argv['watch-output-only'] && !argv['watch-stylus-output-only']) {
-      this._watchOther(join(imports, '**/*.styl'));
-    }
+    this._watchOther(join(imports, '**/*.styl'));
   }
 
   /**
@@ -34,7 +31,7 @@ export default class Stylus extends Base {
    */
   _buildAll() {
     const { src } = config.stylus;
-    return super._buildAll('stylusSet', join(src, '**/*.styl'));
+    return super._buildAll('stylus', join(src, '**/*.styl'));
   }
 
   /**

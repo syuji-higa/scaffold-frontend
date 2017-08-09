@@ -47,16 +47,16 @@ PHP のビルトインサーバを起動
 
 ## オプション
 
-| コマンド                        |
-|:--------------------------------|
-| --coding                        |
-| --scripting                     |
-| --watch-output-only             |
-| --watch-pug-output-only         |
-| --watch-pug-factory-output-only |
-| --watch-stylus-output-only      |
-| --watch-fusebox-output-only     |
-| --php                           |
+| コマンド                     |
+|:-----------------------------|
+| --coding                     |
+| --scripting                  |
+| --viewing-update             |
+| --viewing-update-pug         |
+| --viewing-update-pug-factory |
+| --viewing-update-stylus      |
+| --viewing-update-fusebox     |
+| --php                        |
 
 タスクコマンドの後に追加して使用します。
 
@@ -71,20 +71,20 @@ fusebox タスクを実行しない
 ### --scripting
 pug、stylus、sprite タスクを実行しない
 
-### --watch-output-only
-出力ファイルのみ監視
+### --viewing-update
+表示中のページのみ更新
 
-### --watch-pug-output-only
-pug を出力ファイルのみ監視
+### --viewing-update-pug
+pug を表示中のページのみ更新
 
-### --watch-pug-factory-output-only
-pug-factory を出力ファイルのみ監視
+### --viewing-update-pug-factory
+pug-factory を表示中のページのみ更新
 
-### --watch-stylus-output-only
-stylus を出力ファイルのみ監視
+### --viewing-update-stylus
+stylus を表示中のページのみ更新
 
-### --watch-fusebox-output-only
-fusebox を出力ファイルのみ監視
+### --viewing-update-fusebox
+fusebox を表示中のページのみ更新
 
 ### --php
 browser-sync のサーバに PHP ビルトインサーバを使用
