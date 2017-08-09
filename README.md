@@ -1,6 +1,6 @@
 # 開発環境の構築
 
-このプロジェクトは [node.js](https://nodejs.org/en/) で構築されています。
+このプロジェクトは [node.js](https://nodejs.org/en/) で構築されている
 
 ## グローバルにインストールが必要なモジュール
 - [node.js](https://nodejs.org/en/)（v6〜）
@@ -8,8 +8,15 @@
 ## [npm](https://www.npmjs.com/) から必要なモジュールをインストール
 
 ```bash
+$ npm install
+```
+
+### オフラインモード
+```bash
 $ npm install --prefer-offline
 ```
+高速化ではないが、あればローカルキャッシュを使う為、
+ネットワーク利用率が下がるので、通信が状況が悪い時などに使用
 
 
 
