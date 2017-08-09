@@ -80,7 +80,7 @@ export default class Base {
    */
   _buildAll(name, path) {
     return (async () => {
-      const { argv } = NS;
+      const { argv, isFirstBuild } = NS;
       const _curtPathSet = NS.curtFiles[`${ name }Set`];
       const _paths       = await glob(path);
       const _curtPaths   = [];
@@ -89,7 +89,9 @@ export default class Base {
         _curtPathSet.has(p) ? _curtPaths.push(p) : _otherPaths.push(p);
       }
       if(_curtPaths.length) await this._buildMultiple(_curtPaths);
-      if(argv['viewing-update'] || argv[`viewing-update-${ name }`]) return;
+      if(!isFirstBuild && (argv['viewing-update'] || argv[`viewing-update-${ name }`])) {
+        return;
+      }
       if(_otherPaths.length) await this._buildMultiple(_otherPaths);
     })();
   }

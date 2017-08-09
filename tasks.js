@@ -11,8 +11,9 @@ import Clean from './tasks/clean';
 import UrlList from './tasks/url-list';
 
 global.NS = {};
-NS.argv      = minimist(process.argv.slice(2));
-NS.curtFiles = {
+NS.argv         = minimist(process.argv.slice(2));
+NS.isFirstBuild = true;
+NS.curtFiles    = {
   destSet: new Set(), pugSet: new Set(), stylusSet: new Set(), fuseboxSet: new Set(),
 };
 
@@ -38,5 +39,6 @@ if(argv['production']) {
     await new Clean().start();
   }
   await new UrlList().start();
+  NS.isFirstBuild = false;
   await new BrowserSync().start();
 })();
