@@ -3,13 +3,14 @@
 このプロジェクトは [node.js](https://nodejs.org/en/) で構築されています。
 
 ## グローバルにインストールが必要なモジュール
-- [node.js](https://nodejs.org/en/)
+- [node.js](https://nodejs.org/en/)（v6〜）
 
 ## [npm](https://www.npmjs.com/) から必要なモジュールをインストール
 
 ```bash
-$ npm install
+$ npm install --prefer-offline
 ```
+
 
 
 # Gulp コマンド
