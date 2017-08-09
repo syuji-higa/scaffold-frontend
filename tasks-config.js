@@ -3,7 +3,7 @@ const dest    = 'htdocs';
 const pug     = 'pug';
 const stylus  = 'stylus';
 const fusebox = 'fusebox';
-const image   = 'image';
+const images  = 'images';
 const urlList = '.url-list';
 
 export default {
@@ -34,10 +34,10 @@ export default {
     imports: `${ fusebox }/imports`,
     dest   : dest,
   },
-  image: {
-    root     : image,
-    minify   : `${ image }/minify`,
-    sprite   : `${ image }/sprite`,
+  images: {
+    root     : images,
+    minify   : `${ images }/minify`,
+    sprite   : `${ images }/sprite`,
     dest     : dest,
     styleDest: `${ stylus }/imports/sprite.styl`,
   },

@@ -55,7 +55,7 @@ sprite-retina(filepath)
    * @return {Promsie}
    */
   _build() {
-    const { sprite, styleDest } = config.image;
+    const { sprite, styleDest } = config.images;
     const { _log } = this;
     return (async () => {
       _log.start();
@@ -82,7 +82,7 @@ sprite-retina(filepath)
    * @return {Map}
    */
   _groupBy(paths) {
-    const { sprite } = config.image;
+    const { sprite } = config.images;
     return paths.reduce((memo, path) => {
       const _dir  = dirname(relative(sprite, path));
       if(!memo.has(_dir)) memo.set(_dir, []);
@@ -97,7 +97,7 @@ sprite-retina(filepath)
    * @return {Promsie}
    */
   _spritesmith(key, paths) {
-    const { sprite, dest } = config.image;
+    const { sprite, dest } = config.images;
     const { _pngquantOpts, _spriteOpts } = this;
 
     return new Promise((resolve) => {

@@ -32,7 +32,7 @@ export default class Imagemin {
    * @return {Promsie}
    */
   _minifyMultiple() {
-    const { minify } = config.image;
+    const { minify } = config.images;
     const { _log } = this;
     return (async () => {
       _log.start();
@@ -47,7 +47,7 @@ export default class Imagemin {
    * @return {Promsie}
    */
   _minify(path) {
-    const { minify, dest } = config.image;
+    const { minify, dest } = config.images;
     const { _plugins } = this;
 
     return (async () => {

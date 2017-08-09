@@ -172,12 +172,12 @@ browser-sync のサーバに PHP ビルトインサーバを使用
 # Image
 
 ## Sprite
-/images/sprites/ 以下の画像をスプライト化して /htdocs/ 以下に出力  
+/images/sprite/ 以下の画像をスプライト化して /htdocs/ 以下に出力  
 最終ディレクトリ名がファイル名になる
 
 > 例  
-/images/sprites/images/sample/a.png  
-/images/sprites/images/sample/b.png  
+/images/sprite/images/sample/a.png  
+/images/sprite/images/sample/b.png  
 ↓  
 /htdocs/images/sample.png
 
@@ -197,7 +197,7 @@ Stylus で使用する為に /stylus/imports/sprite.styl が出力
 
 
 ## image minimizing
-/images/src/ 以下の画像を圧縮して /htdocs/ 以下に出力  
+/images/minify/ 以下の画像を圧縮して /htdocs/ 以下に出力  
 
 
 
