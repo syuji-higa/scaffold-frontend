@@ -54,7 +54,16 @@ export default class Stylus extends Base {
         .define('url', stylus.resolver())
         .set('compress', argv['production'])
         .set('sourcemap', !argv['production']);
-      let _css = _stylus.render();
+      let _css = await new Promise((resolve) => {
+        _stylus.render((err, css) => {
+          if(err) {
+            console.log(err);
+            resolve(null);
+          }
+          resolve(css);
+        });
+      });
+      if(!_css) return;
       if(charset !== 'utf8') {
         _css = iconv.encode(_css, charset).toString();
       }

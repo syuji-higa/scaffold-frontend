@@ -47,7 +47,16 @@ export default class Pug extends PugBase {
       const _ext  = this._getExt(relative(src, path));
       const _dest = join(dest, relative(src, path)).replace('.pug', _ext);
       const _opts = Object.assign(_pugOpts, this._getMembers(path));
-      let _html = pug.renderFile(path, _opts);
+      let _html = await new Promise((resolve) => {
+        pug.renderFile(path, _opts, (err, html) => {
+          if(err) {
+            console.log(err);
+            resolve(null);
+          }
+          resolve(html);
+        });
+      });
+      if(!_html) return;
       if(charset !== 'utf8') {
         _html = iconv.encode(_html, charset).toString();
       }

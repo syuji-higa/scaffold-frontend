@@ -57,7 +57,16 @@ export default class PugFactory extends PugBase {
           const _contents = _splitTmp[0] + _valsStr + _splitTmp[1];
           const _members  = this._getMembers(join(root, srcPath));
           const _opts     = Object.assign(_pugOpts, _members);
-          let _html = pug.render(_contents, _opts);
+          let _html = await new Promise((resolve) => {
+            pug.renderFile(_contents, _opts, (err, html) => {
+              if(err) {
+                console.log(err);
+                resolve(null);
+              }
+              resolve(html);
+            });
+          });
+          if(!_html) return;
           if(charset !== 'utf8') {
             _html = iconv.encode(_html, charset).toString();
           }
