@@ -20,7 +20,7 @@ $ npm install --prefer-offline
 
 
 
-# Gulp コマンド
+# npm scripts コマンド
 
 ## タスク
 
@@ -33,18 +33,18 @@ $ npm install --prefer-offline
 | npu run php-server         |
 
 ### npm run watch
-pug、stylus、fusebox、sprite の関連ファイルを監視
+pug, stylus, fusebox, sprite の監視
 
 ### npm run build
-pug、stylus、fusebox、sprite のコンパイル等をして関連ファイルを監視
+pug, stylus, fusebox のトランスパイル、sprite の生成をして、それらを監視
 
 ### npm run production
 本番・納品用のタスクを実行
 
-- pug、stylus、fusebox を圧縮してコンパイル（map ファイルの出力なし）
-- sprite を圧縮して出力
-- imagemin タスクの実行
-- clean タスクの実行
+- pug, stylus, fusebox を圧縮（map ファイルの出力なし）
+- sprite を圧縮
+- imagemin タスク実行
+- clean タスク実行
 
 ### npu run imagemin
 画像を圧縮
@@ -66,7 +66,7 @@ PHP のビルトインサーバを起動
 | --viewing-update-fusebox     |
 | --php                        |
 
-タスクコマンドの後に追加して使用します。
+タスクコマンドの後に追加して使用
 
 ```bash
 # 例
@@ -80,19 +80,19 @@ fusebox タスクを実行しない
 pug、stylus、sprite タスクを実行しない
 
 ### --viewing-update
-表示中のページのみ更新
+表示中のページに関するファイルのみトランスパイル
 
 ### --viewing-update-pug
-pug を表示中のページのみ更新
+pug を表示中のページに関するファイルのみトランスパイル
 
 ### --viewing-update-pug-factory
-pug-factory を表示中のページのみ更新
+pug-factory を表示中のページに関するファイルのみトランスパイル
 
 ### --viewing-update-stylus
-stylus を表示中のページのみ更新
+stylus を表示中のページに関するファイルのみトランスパイル
 
 ### --viewing-update-fusebox
-fusebox を表示中のページのみ更新
+fusebox を表示中のページに関するファイルのみトランスパイル
 
 ### --php
 browser-sync のサーバに PHP ビルトインサーバを使用
@@ -112,9 +112,9 @@ browser-sync のサーバに PHP ビルトインサーバを使用
 
 
 # HTML
-[pug](https://github.com/pugjs/pug) をコンパイル
+[pug](https://github.com/pugjs/pug) をトランスパイル
 
-/pug/src/ 以下の pug ファイルをコンパイルし /htdocs/ 以下に出力
+/pug/src/ 以下の pug ファイルをトランスパイルし /htdocs/ 以下に出力
 
 ## 用意されている変数
 
@@ -147,11 +147,11 @@ browser-sync のサーバに PHP ビルトインサーバを使用
 テンプレートファイル（pug）と json から html 自動生成
 
 ### テンプレートファイル
-/json/factorys/ 以下の pug ファイル  
+/pug/factorys/ 以下の pug ファイル  
 `{{vars}}` に json から取得したデータが変数として挿入される
 
 ### データファイル
-/json/factorys/ 以下の json ファイル
+/pug/factorys/ 以下の json ファイル
 
 ```javascript
 { "factorys/index.pug": {  // 使用するテンプレートを指定
@@ -171,9 +171,9 @@ browser-sync のサーバに PHP ビルトインサーバを使用
 
 
 # CSS
-[Stylus](http://stylus-lang.com/) をコンパイル
+[Stylus](http://stylus-lang.com/) をトランスパイル
 
-/stylus/src/ 以下の stylus ファイルをコンパイルし /htdocs/ 以下に出力
+/stylus/src/ 以下の stylus ファイルをトランスパイルし /htdocs/ 以下に出力
 
 
 
