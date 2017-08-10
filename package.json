@@ -1,7 +1,7 @@
 {
   "name": "scaffold-frontend",
   "version": "1.0.0",
-  "description": "frontend scaffold",
+  "description": "",
   "main": "",
   "scripts": {
     "watch": "babel-node tasks.js",
@@ -12,10 +12,14 @@
   },
   "repository": {
     "Type": "git",
-    "URL": "git@github.com:syuji-higa/scaffold-frontend.git"
+    "url": "git+https://github.com/syuji-higa/scaffold-frontend.git"
   },
   "auther": "syuji-higa",
   "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/syuji-higa/scaffold-frontend/issues"
+  },
+  "homepage": "https://github.com/syuji-higa/scaffold-frontend#readme",
   "private": true,
   "devDependencies": {
     "babel-cli": "^6.24.1",
