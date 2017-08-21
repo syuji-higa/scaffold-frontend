@@ -55,20 +55,23 @@ a {
 }
 </style>
 <script>
-const root = 'http://domain.com/';
+const root = 'http://domain.com';
 const data = {{data}};
 window.addEventListener('DOMContentLoaded', function() {
-  const { hostname, port } = location;
-  const _root = hostname ? (port ? (hostname + ':3000') : hostname) : root;
-  const _set = (d, $p) => {
+  const _hostname = location.hostname;
+  const _port     = location.port;
+  const _root = _hostname
+    ? 'http://' + (_port ? (_hostname + ':3000') : _hostname)
+    : root;
+  const _set = function(d, $p) {
     const _$ul = document.createElement('ul');
-    Object.keys(d).forEach((key) => {
+    Object.keys(d).forEach(function(key) {
       const _$li = document.createElement('li');
       const _val = d[key];
       if(typeof _val === 'string') {
         const _$a = document.createElement('a');
         _$a.textContent = key;
-        _$a.href        = _root + _val.replace(/index\.(html|php)$/, '');
+        _$a.href        = _root + '/' + _val.replace(/index\.(html|php)$/, '');
         _$li.appendChild(_$a);
       } else {
         const _$span = document.createElement('span');
