@@ -64,6 +64,7 @@ export default class Fusebox extends Base {
         _plugins.push(UglifyESPlugin());
       }
       const _fuse = FuseBox.init({
+        package   : _root.replace('.js', '').replace(/\//g, '--'),
         homeDir   : src,
         output    : `${ _destDir }/$name.js`,
         sourceMaps: !argv['production'],
