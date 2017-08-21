@@ -2,7 +2,7 @@ const charset = 'utf8';
 const dest    = 'htdocs';
 const pug     = 'pug';
 const stylus  = 'stylus';
-const fusebox = 'fusebox';
+const webpack = 'webpack';
 const images  = 'images';
 const urlList = '.url-list';
 
@@ -27,11 +27,11 @@ export default {
     imports: `${ stylus }/imports`,
     dest   : dest,
   },
-  fusebox: {
+  webpack: {
     charset: charset,
-    root   : fusebox,
-    src    : `${ fusebox }/src`,
-    imports: `${ fusebox }/imports`,
+    root   : webpack,
+    src    : `${ webpack }/src`,
+    imports: `${ webpack }/imports`,
     dest   : dest,
   },
   images: {

@@ -1,7 +1,7 @@
 {
   "name": "scaffold-frontend",
   "version": "1.0.0",
-  "description": "",
+  "description": "frontend scaffold",
   "main": "",
   "scripts": {
     "watch": "babel-node tasks.js",
@@ -12,17 +12,14 @@
   },
   "repository": {
     "Type": "git",
-    "url": "git+https://github.com/syuji-higa/scaffold-frontend.git"
+    "URL": "git@github.com:syuji-higa/scaffold-frontend.git"
   },
   "auther": "syuji-higa",
   "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/syuji-higa/scaffold-frontend/issues"
-  },
-  "homepage": "https://github.com/syuji-higa/scaffold-frontend#readme",
   "private": true,
   "devDependencies": {
     "babel-cli": "^6.24.1",
+    "babel-loader": "^7.1.2",
     "babel-plugin-syntax-async-functions": "^6.13.0",
     "babel-plugin-transform-regenerator": "^6.24.1",
     "babel-preset-latest": "^6.24.1",
@@ -30,19 +27,19 @@
     "browser-sync": "^2.18.8",
     "chokidar": "^1.7.0",
     "deep-assign": "^2.0.0",
-    "fuse-box": "^2.2.1",
     "iconv-lite": "^0.4.15",
     "imagemin": "^5.3.1",
     "imagemin-gifsicle": "^5.2.0",
     "imagemin-jpegtran": "^5.0.2",
     "imagemin-pngquant": "^5.0.1",
     "imagemin-svgo": "^5.2.2",
+    "memory-fs": "^0.4.1",
     "mkdirp": "^0.5.1",
     "nib": "^1.1.2",
     "pug": "^2.0.0-beta11",
     "spritesmith": "^3.1.1",
     "stylus": "^0.54.5",
-    "typescript": "^2.4.2",
-    "uglify-es": "^3.0.27"
+    "uglify-es": "^3.0.27",
+    "webpack": "^3.5.5"
   }
 }

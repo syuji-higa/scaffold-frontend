@@ -47,7 +47,7 @@ export default class Pug extends PugBase {
       let _html = await new Promise((resolve) => {
         pug.renderFile(path, _opts, (err, html) => {
           if(err) {
-            console.log(err.Error);
+            console.log(err);
             resolve(null);
           }
           resolve(html);

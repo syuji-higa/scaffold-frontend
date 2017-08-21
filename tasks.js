@@ -4,7 +4,7 @@ import BrowserSync from './tasks/browser-sync';
 import Pug from './tasks/pug';
 import PugFactory from './tasks/pug-factory';
 import Stylus from './tasks/stylus';
-import Fusebox from './tasks/fusebox';
+import Webpack from './tasks/webpack';
 import Imagemin from './tasks/imagemin';
 import Sprite from './tasks/sprite';
 import Clean from './tasks/clean';
@@ -14,7 +14,7 @@ global.NS = {};
 NS.argv         = minimist(process.argv.slice(2));
 NS.isFirstBuild = true;
 NS.curtFiles    = {
-  destSet: new Set(), pugSet: new Set(), stylusSet: new Set(), fuseboxSet: new Set(),
+  destSet: new Set(), pugSet: new Set(), stylusSet: new Set(), webpackSet: new Set(),
 };
 
 const { argv } = NS;
@@ -27,7 +27,7 @@ if(_isAllTask || argv['coding']) {
   ]);
 }
 if(_isAllTask || argv['scripting']) {
-  firstTasks.push(new Fusebox().start());
+  firstTasks.push(new Webpack().start());
 }
 if(argv['production']) {
   firstTasks.push(new Imagemin().start());

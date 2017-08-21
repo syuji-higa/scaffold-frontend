@@ -1,5 +1,5 @@
-import { createInstance, createSingleInstance } from 'imports/utility/instance';
-import Sample from 'imports/view/sample';
+import { createInstance, createSingleInstance } from 'utility/instance';
+import Sample from 'view/sample';
 
 if(typeof NS !== 'undefined') {
   throw new Error('namespace "NS" is already exists.');

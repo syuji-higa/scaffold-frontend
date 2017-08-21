@@ -89,9 +89,9 @@ export default class BrowserSync {
           stylusSet.add(join(stylus.src, _path.replace(_ext, '.styl')));
           break;
         case '.js':
-          const { fuseboxSet } = NS.curtFiles;
-          const { fusebox } = config;
-          fuseboxSet.add(join(fusebox.src, _path));
+          const { webpackSet } = NS.curtFiles;
+          const { webpack } = config;
+          webpackSet.add(join(webpack.src, _path));
           break;
       }
     } else {

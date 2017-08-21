@@ -1,6 +1,6 @@
 import Base from './base';
 import config from '../tasks-config';
-import { relative, dirname } from 'path';
+import { join, relative, dirname } from 'path';
 import { getType } from './utility/type';
 
 export default class PugBase extends Base {
