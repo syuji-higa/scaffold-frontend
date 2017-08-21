@@ -1,13 +1,15 @@
 import config from '../tasks-config';
 import { join, relative, dirname } from 'path';
+import FileCache from './utility/file-cache';
 import Log from './utility/log';
 import { glob } from './utility/glob';
 import { mkfile } from './utility/file';
+import chokidar from 'chokidar';
 import Spritesmith from 'spritesmith';
 import imagemin from 'imagemin';
 import pngquant from 'imagemin-pngquant';
 
-export default class Spraite {
+export default class Sprite {
 
   get _pngquantOpts() {
     return {
@@ -40,15 +42,32 @@ sprite-retina(filepath)
   }
 
   constructor() {
-    this._log    = new Log('sprite');
-    this._dirSet = new Set();
+    this._log       = new Log('sprite');
+    this._fileCache = new FileCache();
   }
 
   /**
    * @return {Promsie}
    */
   start() {
-    return this._build();
+    return (async () => {
+      await this._build();
+      new Log('watch sprite').start();
+      this._watch();
+    })();
+  }
+
+  _watch() {
+    const { sprite } = config.images;
+
+    // sprite
+    chokidar.watch(join(sprite, '**/*.png'), { ignoreInitial: true })
+      .on('all', (evt, path) => {
+        if(!evt.match(/(add|unlink|change)/)) return;
+        console.log(`# ${ evt } -> ${ path }`);
+        const { root } = config.path;
+        this._build();
+      });
   }
 
   /**
@@ -56,7 +75,7 @@ sprite-retina(filepath)
    */
   _build() {
     const { sprite, styleDest } = config.images;
-    const { _log } = this;
+    const { _log, _fileCache } = this;
     return (async () => {
       _log.start();
       const _paths   = await glob(join(sprite, '**/*.+(png|jpg|gif|svg)'));
@@ -69,8 +88,8 @@ sprite-retina(filepath)
         return _promises;
       })());
       const _css = this._getCss(this._flatten(_spritehashs));
-      if(_css) {
-        await mkfile(styleDest, _css.toString());
+      if(_css && _fileCache.mightUpdate(styleDest, new Buffer(_css, 'utf8'))) {
+        await mkfile(styleDest, _css);
         console.log(`# Created -> ${ styleDest }`);
       }
       _log.finish();
@@ -98,7 +117,7 @@ sprite-retina(filepath)
    */
   _spritesmith(key, paths) {
     const { sprite, dest } = config.images;
-    const { _pngquantOpts, _spriteOpts } = this;
+    const { _pngquantOpts, _spriteOpts, _fileCache } = this;
 
     return new Promise((resolve) => {
       Spritesmith.run(Object.assign({ src: paths }, _spriteOpts), (err, result) => {
@@ -108,8 +127,10 @@ sprite-retina(filepath)
         const _dest = join(dest, _key);
         (async() => {
           const _img = await this._getImgBuf(image);
-          await mkfile(_dest, _img.toString('base64'), 'base64');
-          console.log(`# Created -> ${ _dest }`);
+          if(_fileCache.mightUpdate(_dest, _img)) {
+            await mkfile(_dest, _img.toString('base64'), 'base64');
+            console.log(`# Created -> ${ _dest }`);
+          };
           resolve(Object.entries(coordinates).reduce((memo, [path, style]) => {
             memo[relative(sprite, path)] = Object.assign(style, { url: _key });
             return memo;

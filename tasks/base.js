@@ -12,9 +12,9 @@ export default class Base {
    * @param {string} type
    */
   constructor(type) {
-    this._type       = type;
-    this._log        = new Log(type);
-    this._fileCache  = new FileCache();
+    this._type      = type;
+    this._log       = new Log(type);
+    this._fileCache = new FileCache();
   }
 
   /**
@@ -51,7 +51,7 @@ export default class Base {
     const { _fileCache } = this;
     chokidar.watch(target, { ignoreInitial: true })
       .on('all', (evt, path) => {
-        if(!evt.match(/(add|change)/) || _fileCache.mightUpdate(path)) return;
+        if(!evt.match(/(add|change)/) || !_fileCache.mightUpdate(path)) return;
         console.log(`# ${ evt } -> ${ path }`);
         const { root } = config.path;
         fn(relative(root, path));

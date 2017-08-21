@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { accessSync, readFileSync } from 'fs';
 import { createHash, update, digest } from 'crypto';
 
 export default class FileCache {
@@ -9,28 +9,36 @@ export default class FileCache {
 
   /**
    * @param {string} path
+   * @param {Buffer} buf
    */
-  set(path) {
+  set(path, buf = null) {
     const { _cacheMap } = this;
-    const _buf  = readFileSync(path);
+    const _buf  = buf || readFileSync(path);
     const _hash = this._toHash(_buf);
     _cacheMap.set(path, _hash);
   }
 
   /**
    * @param {string} path
+   * @param {Buffer} buf
    * @return {boolean}
    */
-  mightUpdate(path) {
+  mightUpdate(path, buf) {
     const { _cacheMap } = this;
-    const _buf       = readFileSync(path);
-    const _hash      = this._toHash(_buf);
-    const _hashCache = _cacheMap.get(path);
-    if(_hashCache === _hash) {
+    try {
+      accessSync(path);
+      const _buf       = buf || readFileSync(path);
+      const _hash      = this._toHash(_buf);
+      const _hashCache = _cacheMap.get(path);
+      if(_hashCache === _hash) {
+        return false;
+      } else {
+        _cacheMap.set(path, _hash);
+        return true;
+      }
+    } catch(err) {
+      _cacheMap.delete(path);
       return true;
-    } else {
-      _cacheMap.set(path, _hash);
-      return false;
     }
   }
 
