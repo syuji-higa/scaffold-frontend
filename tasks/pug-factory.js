@@ -72,7 +72,7 @@ export default class PugFactory extends PugBase {
           let _html = await new Promise((resolve) => {
             pug.render(_contents, _opts, (err, html) => {
               if(err) {
-                console.log(err);
+                console.log(err.Error);
                 resolve(null);
               }
               resolve(html);
