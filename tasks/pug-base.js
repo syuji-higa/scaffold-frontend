@@ -38,9 +38,8 @@ export default class PugBase extends Base {
     return {
       isProduction: production,
       basedir     : root,
-      relative    : (path) => {
-        return relative(relative(src, dirname(file)), path);
-      },
+      join        : (...paths) => join(...paths),
+      relative    : (path) => relative(relative(src, dirname(file)), path),
     };
   }
 
