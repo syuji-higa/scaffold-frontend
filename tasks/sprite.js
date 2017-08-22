@@ -4,6 +4,7 @@ import FileCache from './utility/file-cache';
 import Log from './utility/log';
 import { glob } from './utility/glob';
 import { mkfile } from './utility/file';
+import { createDebounce } from './utility/debounce';
 import chokidar from 'chokidar';
 import Spritesmith from 'spritesmith';
 import imagemin from 'imagemin';
@@ -44,6 +45,7 @@ sprite-retina(filepath)
   constructor() {
     this._log       = new Log('sprite');
     this._fileCache = new FileCache();
+    this._debounce  = createDebounce();
   }
 
   /**
@@ -59,14 +61,15 @@ sprite-retina(filepath)
 
   _watch() {
     const { sprite } = config.images;
-
-    // sprite
     chokidar.watch(join(sprite, '**/*.png'), { ignoreInitial: true })
       .on('all', (evt, path) => {
         if(!evt.match(/(add|unlink|change)/)) return;
         console.log(`# ${ evt } -> ${ path }`);
-        const { root } = config.path;
-        this._build();
+        const { _debounce } = this;
+        _debounce(() => {
+          const { root } = config.path;
+          this._build();
+        });
       });
   }
 
