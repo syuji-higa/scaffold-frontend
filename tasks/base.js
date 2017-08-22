@@ -54,7 +54,12 @@ export default class Base {
         if(!evt.match(/(add|change)/) || !_fileCache.mightUpdate(path)) return;
         console.log(`# ${ evt } -> ${ path }`);
         const { root } = config.path;
-        fn(relative(root, path));
+        const { _log } = this;
+        (async () => {
+          _log.start();
+          await fn(relative(root, path));
+          _log.finish();
+        })();
       });
   }
 

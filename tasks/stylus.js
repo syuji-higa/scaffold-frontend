@@ -54,8 +54,8 @@ export default class Stylus extends Base {
       let _css = await new Promise((resolve) => {
         _stylus.render((err, css) => {
           if(err) {
-            console.log(err);
-            resolve(null);
+            console.log(err.message);
+            return resolve(null);
           }
           resolve(css);
         });

@@ -37,7 +37,7 @@ export default class Webpack extends Base {
             test: /\.js$/,
             loader : 'babel-loader',
             options: {
-              presets: [ 'latest', 'stage-0' ],
+              presets: ['latest', 'stage-0'],
             },
             exclude: /node_modules/,
           }
@@ -117,18 +117,16 @@ export default class Webpack extends Base {
       }
       const _compiler = webpack(_opts);
       _compiler.outputFileSystem = fs;
-      let { js, sourcemap } = await new Promise((resolve) => {
+      const _data = await new Promise((resolve) => {
         _compiler.run((err, stats) => {
           if(err) {
             console.log(err);
-            resolve();
-            return;
+            return resolve();
           }
           const _err = stats.compilation.errors;
           if(_err.length) {
-            console.log(_err);
-            resolve();
-            return;
+            console.log(_err[0].message);
+            return resolve();
           }
           const _path      = join(root, _destDir, _destFile);
           const _js        = fs.readFileSync(_path);
@@ -136,6 +134,8 @@ export default class Webpack extends Base {
           resolve({ js: _js, sourcemap: _sourcemap });
         });
       });
+      if(!_data) return;
+      let { js, sourcemap } = _data;
       if(charset !== 'utf8') {
         js = iconv.encode(js, charset).toString();
       }
