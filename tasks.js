@@ -36,7 +36,7 @@ if(argv['production']) {
   if(argv['production']) {
     await new Clean().start();
   }
-  await Promise.all([new Stylus().start(), new UrlList().start()])
+  await Promise.all([new Stylus().start(), new UrlList().start()]);
   NS.isFirstBuild = false;
   await new BrowserSync().start();
 })();
