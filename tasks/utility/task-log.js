@@ -1,3 +1,5 @@
+import { colors } from './colors';
+
 export default class TaskLog {
 
   constructor(taskName) {
@@ -12,8 +14,8 @@ export default class TaskLog {
   }
 
   start() {
-    const { _taskName, _colors } = this;
-    const { black, cyan, reset } = _colors;
+    const { _taskName } = this;
+    const { black, cyan, reset } = colors;
 
     const _date     = new Date();
     const _time     = this._getTime(_date);
@@ -25,8 +27,8 @@ export default class TaskLog {
   }
 
   finish() {
-    const { _taskName, _startTime, _colors } = this;
-    const { black, magenta, cyan, reset } = _colors;
+    const { _taskName, _startTime } = this;
+    const { black, magenta, cyan, reset } = colors;
 
     const _date       = new Date();
     const _time       = this._getTime(_date);
