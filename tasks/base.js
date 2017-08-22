@@ -2,8 +2,9 @@ import config from '../tasks-config';
 import { readFileSync } from 'fs';
 import { relative } from 'path';
 import FileCache from './utility/file-cache';
-import Log from './utility/log';
+import TaskLog from './utility/task-log';
 import { glob } from './utility/glob';
+import { fileLog } from './utility/file-log';
 import chokidar from 'chokidar';
 
 export default class Base {
@@ -13,7 +14,7 @@ export default class Base {
    */
   constructor(type) {
     this._type      = type;
-    this._log       = new Log(type);
+    this._taskLog   = new TaskLog(type);
     this._fileCache = new FileCache();
   }
 
@@ -27,7 +28,7 @@ export default class Base {
         await this._buildAll();
       }
       const { _type } = this;
-      new Log(`watch ${ _type }`).start();
+      new TaskLog(`watch ${ _type }`).start();
       this._watch();
     })();
   }
@@ -52,13 +53,13 @@ export default class Base {
     chokidar.watch(target, { ignoreInitial: true })
       .on('all', (evt, path) => {
         if(!evt.match(/(add|change)/) || !_fileCache.mightUpdate(path)) return;
-        console.log(`# ${ evt } -> ${ path }`);
+        fileLog(evt, path);
         const { root } = config.path;
-        const { _log } = this;
+        const { _taskLog } = this;
         (async () => {
-          _log.start();
+          _taskLog.start();
           await fn(relative(root, path));
-          _log.finish();
+          _taskLog.finish();
         })();
       });
   }
@@ -106,11 +107,11 @@ export default class Base {
    * @return {Promise}
    */
   _buildMultiple(paths) {
-    const { _log } = this;
+    const { _taskLog } = this;
     return (async () => {
-      _log.start();
+      _taskLog.start();
       await Promise.all(paths.map((p) => this._build(p)));
-      _log.finish();
+      _taskLog.finish();
     })();
   }
 

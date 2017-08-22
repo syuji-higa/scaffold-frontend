@@ -1,9 +1,10 @@
 import config from '../tasks-config';
 import { join, relative, dirname } from 'path';
 import FileCache from './utility/file-cache';
-import Log from './utility/log';
+import TaskLog from './utility/task-log';
 import { glob } from './utility/glob';
 import { mkfile } from './utility/file';
+import { fileLog } from './utility/file-log';
 import { createDebounce } from './utility/debounce';
 import chokidar from 'chokidar';
 import Spritesmith from 'spritesmith';
@@ -43,7 +44,7 @@ sprite-retina(filepath)
   }
 
   constructor() {
-    this._log       = new Log('sprite');
+    this._taskLog   = new TaskLog('sprite');
     this._fileCache = new FileCache();
     this._debounce  = createDebounce();
   }
@@ -54,7 +55,7 @@ sprite-retina(filepath)
   start() {
     return (async () => {
       await this._build();
-      new Log('watch sprite').start();
+      new TaskLog('watch sprite').start();
       this._watch();
     })();
   }
@@ -64,7 +65,7 @@ sprite-retina(filepath)
     chokidar.watch(join(sprite, '**/*.png'), { ignoreInitial: true })
       .on('all', (evt, path) => {
         if(!evt.match(/(add|unlink|change)/)) return;
-        console.log(`# ${ evt } -> ${ path }`);
+        fileLog(evt, path);
         const { _debounce } = this;
         _debounce(() => {
           const { root } = config.path;
@@ -78,9 +79,9 @@ sprite-retina(filepath)
    */
   _build() {
     const { sprite, styleDest } = config.images;
-    const { _log, _fileCache } = this;
+    const { _taskLog, _fileCache } = this;
     return (async () => {
-      _log.start();
+      _taskLog.start();
       const _paths   = await glob(join(sprite, '**/*.+(png|jpg|gif|svg)'));
       const _pathMap = this._groupBy(_paths);
       const _spritehashs = await Promise.all((() => {
@@ -93,9 +94,9 @@ sprite-retina(filepath)
       const _css = this._getCss(this._flatten(_spritehashs));
       if(_css && _fileCache.mightUpdate(styleDest, new Buffer(_css, 'utf8'))) {
         await mkfile(styleDest, _css);
-        console.log(`# Created -> ${ styleDest }`);
+        fileLog('create', styleDest);
       }
-      _log.finish();
+      _taskLog.finish();
     })();
   }
 
@@ -132,7 +133,7 @@ sprite-retina(filepath)
           const _img = await this._getImgBuf(image);
           if(_fileCache.mightUpdate(_dest, _img)) {
             await mkfile(_dest, _img.toString('base64'), 'base64');
-            console.log(`# Created -> ${ _dest }`);
+            fileLog('create', _dest);
           };
           resolve(Object.entries(coordinates).reduce((memo, [path, style]) => {
             memo[relative(sprite, path)] = Object.assign(style, { url: _key });

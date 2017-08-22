@@ -1,7 +1,7 @@
 import config from '../tasks-config';
 import { join } from 'path';
 import bs from 'browser-sync';
-import Log from './utility/log';
+import TaskLog from './utility/task-log';
 import chokidar from 'chokidar';
 
 const browserSync        = bs.create();
@@ -10,7 +10,7 @@ const browserSyncUrlList = bs.create();
 export default class BrowserSync {
 
   constructor() {
-    this._log = new Log('browser-sync');
+    this._taskLog = new TaskLog('browser-sync');
   }
 
   /**
@@ -19,9 +19,9 @@ export default class BrowserSync {
   start() {
     const { path, urlList } = config;
     const { argv } = NS;
-    const { _log } = this;
+    const { _taskLog } = this;
     return (async () => {
-      _log.start();
+      _taskLog.start();
       await Promise.all([
         new Promise((resolve) => {
           browserSyncUrlList.init({

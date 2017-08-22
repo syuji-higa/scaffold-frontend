@@ -2,6 +2,7 @@ import PugBase from './pug-base';
 import config from '../tasks-config';
 import { join, relative } from 'path';
 import { mkfile } from './utility/file';
+import { fileLog } from './utility/file-log';
 import pug from 'pug';
 import iconv from 'iconv-lite';
 
@@ -58,7 +59,7 @@ export default class Pug extends PugBase {
         _html = iconv.encode(_html, charset).toString();
       }
       await mkfile(_dest, _html);
-      console.log(`# Created -> ${ _dest }`);
+      fileLog('create', _dest);
     })();
   }
 

@@ -1,8 +1,9 @@
 import config from '../tasks-config';
 import { join, relative, dirname, extname } from 'path';
-import Log from './utility/log';
+import TaskLog from './utility/task-log';
 import { glob } from './utility/glob';
 import { mkfile } from './utility/file';
+import { fileLog } from './utility/file-log';
 import imagemin from 'imagemin';
 import pngquant from 'imagemin-pngquant';
 import jpegtran from 'imagemin-jpegtran';
@@ -12,7 +13,7 @@ import svgo from 'imagemin-svgo';
 export default class Imagemin {
 
   constructor() {
-    this._log = new Log('imagemin');
+    this._taskLog = new TaskLog('imagemin');
     this._plugins = {
       png: pngquant({ quality: 100, speed: 1 }),
       jpg: jpegtran({ progressive: true }),
@@ -33,12 +34,12 @@ export default class Imagemin {
    */
   _minifyMultiple() {
     const { minify } = config.images;
-    const { _log } = this;
+    const { _taskLog } = this;
     return (async () => {
-      _log.start();
+      _taskLog.start();
       const _paths = await glob(join(minify, '**/*.+(png|jpg|gif|svg)'));
       await Promise.all(_paths.map((p) => this._minify(p)));
-      _log.finish();
+      _taskLog.finish();
     })();
   }
 
@@ -58,7 +59,7 @@ export default class Imagemin {
       });
       const { data, path: __dest } = _files[0];
       await mkfile(__dest, data.toString('base64'), 'base64');
-      console.log(`# Created -> ${ __dest }`);
+      fileLog('create', __dest);
     })();
   }
 

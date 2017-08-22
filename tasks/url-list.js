@@ -1,16 +1,17 @@
 import config from '../tasks-config';
 import { join, relative, dirname, extname } from 'path';
 import { readFileSync } from 'fs';
-import Log from './utility/log';
+import TaskLog from './utility/task-log';
 import { glob } from './utility/glob';
 import { mkfile } from './utility/file';
+import { fileLog } from './utility/file-log';
 import chokidar from 'chokidar';
 import deepAssign from 'deep-assign';
 
 export default class UrlList {
 
   constructor() {
-    this._log = new Log('url-list');
+    this._taskLog = new TaskLog('url-list');
   }
 
   /**
@@ -19,7 +20,7 @@ export default class UrlList {
   start() {
     return (async () => {
       await this._build();
-      new Log(`watch url-list`).start();
+      new TaskLog(`watch url-list`).start();
       this._watch();
     })();
   }
@@ -29,7 +30,7 @@ export default class UrlList {
     chokidar.watch(join(dest, '**/*.+(html|php)'), { ignoreInitial: true })
       .on('all', (evt, path) => {
         if(!evt.match(/(add|unlink)/)) return;
-        console.log(`# ${ evt } -> ${ path }`);
+        fileLog(evt, path);
         this._build();
       });
   }
@@ -39,9 +40,9 @@ export default class UrlList {
    */
   _build() {
     const { path, urlList: { tmp, dest } } = config;
-    const { _log } = this;
+    const { _taskLog } = this;
     return (async () => {
-      _log.start();
+      _taskLog.start();
       const _paths = await glob(join(path.dest, '**/*.+(html|php)'));
       const _urlHash = {};
       for(const path of _paths) {
@@ -52,7 +53,8 @@ export default class UrlList {
       const _buf  = await readFileSync(tmp);
       const _html = _buf.toString().replace('{{data}}', JSON.stringify(_urlHash));
       await mkfile(dest, _html);
-      _log.finish();
+      fileLog('create', dest);
+      _taskLog.finish();
     })();
   }
 

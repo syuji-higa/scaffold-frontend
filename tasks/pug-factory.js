@@ -3,6 +3,7 @@ import config from '../tasks-config';
 import { readFileSync } from 'fs';
 import { join, relative } from 'path';
 import { mkfile } from './utility/file';
+import { fileLog } from './utility/file-log';
 import { getType } from './utility/type';
 import pug from 'pug';
 import iconv from 'iconv-lite';
@@ -85,7 +86,7 @@ export default class PugFactory extends PugBase {
           const _ext  = this._getExt(srcPath);
           const _dest = join(dest, srcPath).replace('.pug', _ext);
           await mkfile(_dest, _html);
-          console.log(`# Created -> ${ _dest }`);
+          fileLog('create', _dest);
         })();
       }));
     }));

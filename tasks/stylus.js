@@ -3,6 +3,7 @@ import config from '../tasks-config';
 import { readFileSync } from 'fs';
 import { join, relative, basename } from 'path';
 import { mkfile } from './utility/file';
+import { fileLog } from './utility/file-log';
 import stylus from 'stylus';
 import nib from 'nib';
 import iconv from 'iconv-lite';
@@ -66,11 +67,11 @@ export default class Stylus extends Base {
       }
       const _dest = join(dest, relative(src, path)).replace('.styl', '.css');
       await mkfile(_dest, _css);
-      console.log(`# Created -> ${ _dest }`);
+      fileLog('create', _dest);
       if(!argv['production']) {
-        const _sourcemapDest = `${ _dest }.map`;
-        await mkfile(_sourcemapDest, JSON.stringify(_stylus.sourcemap));
-        console.log(`# Created -> ${ _sourcemapDest }`);
+        const _mapDest = `${ _dest }.map`;
+        await mkfile(_mapDest, JSON.stringify(_stylus.sourcemap));
+        fileLog('create', _mapDest);
       }
     })();
   }

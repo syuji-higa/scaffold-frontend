@@ -4,9 +4,9 @@ import { readFileSync } from 'fs';
 import MemoryFS from 'memory-fs';
 import { join, relative, dirname, basename } from 'path';
 import { mkfile } from './utility/file';
+import { fileLog } from './utility/file-log';
 import { glob } from './utility/glob';
 import FileCache from './utility/file-cache';
-import Log from './utility/log';
 import chokidar from 'chokidar';
 import webpack from 'webpack';
 import iconv from 'iconv-lite';
@@ -140,11 +140,11 @@ export default class Webpack extends Base {
         js = iconv.encode(js, charset).toString();
       }
       await mkfile(_dest, js);
-      console.log(`# Created -> ${ _dest }`);
+      fileLog('create', _dest);
       if(!argv['production']) {
         const _mapPath = `${ _dest }.map`;
         await mkfile(_mapPath, sourcemap);
-        console.log(`# Created -> ${ _mapPath }`);
+        fileLog('create', _mapPath);
       }
     })();
   }

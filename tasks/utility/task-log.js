@@ -1,4 +1,4 @@
-export default class Log {
+export default class TaskLog {
 
   constructor(taskName) {
     this._taskName  = taskName;
@@ -19,7 +19,7 @@ export default class Log {
     const _time     = this._getTime(_date);
     this._startTime = _date.getTime();
 
-    let _msg = `[${ black + _time + reset }] Starting '${ cyan + _taskName + reset }'...`;
+    const _msg = `[${ black + _time + reset }] Starting '${ cyan + _taskName + reset }'...`;
 
     console.log(_msg);
   }
@@ -32,7 +32,7 @@ export default class Log {
     const _time       = this._getTime(_date);
     const _finishTime = _date.getTime() - _startTime;
 
-    let _msg = `[${ black + _time + reset }] Finished '${ cyan + _taskName + reset }' after ${ magenta + _finishTime } ms ${ reset }`;
+    const _msg = `[${ black + _time + reset }] Finished '${ cyan + _taskName + reset }' after ${ magenta + _finishTime } ms ${ reset }`;
 
     console.log(_msg);
   }
