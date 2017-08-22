@@ -22,9 +22,7 @@ const _isAllTask = !argv['coding'] && !argv['scripting'];
 
 const firstTasks = [];
 if(_isAllTask || argv['coding']) {
-  firstTasks.concat([
-    new Pug().start(), new PugFactory().start(), new Stylus().start(), new Sprite().start(),
-  ]);
+  firstTasks.concat([ new Pug().start(), new PugFactory().start(), new Sprite().start() ]);
 }
 if(_isAllTask || argv['scripting']) {
   firstTasks.push(new Webpack().start());
@@ -38,6 +36,7 @@ if(argv['production']) {
   if(argv['production']) {
     await new Clean().start();
   }
+  await new Stylus().start();
   await new UrlList().start();
   NS.isFirstBuild = false;
   await new BrowserSync().start();
