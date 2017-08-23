@@ -12,13 +12,13 @@ export default {
     dest: dest,
   },
   pug: {
-    charset : charset,
-    root    : pug,
-    src     : `${ pug }/src`,
-    tmp     : `${ pug }/(extends|includes)`,
-    factorys: `${ pug }/factorys`,
-    dest    : dest,
-    php     : [],  // 'all', ['index.pug', 'sp/index.pug']
+    charset: charset,
+    root   : pug,
+    src    : `${ pug }/src`,
+    tmp    : `${ pug }/(extends|includes)`,
+    factory: `${ pug }/factory`,
+    dest   : dest,
+    php    : [],  // 'all', ['index.pug', 'sp/index.pug']
   },
   stylus: {
     charset: charset,

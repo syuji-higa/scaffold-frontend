@@ -56,7 +56,10 @@ sprite-retina(filepath)
     return (async () => {
       await this._build();
       new TaskLog('watch sprite').start();
-      this._watch();
+      const { argv } = NS;
+      if(!argv['production']) {
+        this._watch();
+      }
     })();
   }
 

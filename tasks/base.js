@@ -29,7 +29,9 @@ export default class Base {
       }
       const { _type } = this;
       new TaskLog(`watch ${ _type }`).start();
-      this._watch();
+      if(!argv['production']) {
+        this._watch();
+      }
     })();
   }
 

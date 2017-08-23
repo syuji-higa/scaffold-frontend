@@ -59,7 +59,9 @@ export default class BrowserSync {
           browserSync.init(_opts, resolve);
         }),
       ]);
-      this._watch();
+      if(!argv['production']) {
+        this._watch();
+      }
     })();
   }
 

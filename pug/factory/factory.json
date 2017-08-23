@@ -1,16 +1,16 @@
-{ "factorys/index.pug": {
+{ "factory/index": {
 
-  "factory/index.pug": {
+  "fac/index": {
     "factoryTitle": "タイトル1",
     "factoryContents": "コンテンツ1",
     "factoryItems": ["A1", "A2", "A3"]
   },
-  "factory/hoge/index.pug": {
+  "fac/hoge/index": {
     "factoryTitle": "タイトル2",
     "factoryContents": "コンテンツ2<br>コンテンツ2",
     "factoryItems": ["B1", "B2", "B3"]
   },
-  "factory/fuga/fuga/index.pug": {
+  "fac/fuga/fuga/index": {
     "factoryTitle": "タイトル3",
     "factoryContents": "コンテンツ3",
     "factoryItems": ["C1", "C2", "C3"]
