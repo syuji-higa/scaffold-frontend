@@ -2,11 +2,20 @@
 
 このプロジェクトは [node.js](https://nodejs.org/en/) で構築されている
 
-## グローバルにインストールが必要なモジュール
-- [node.js](https://nodejs.org/en/)（v6〜）
+## 事前準備
 
-## [npm](https://www.npmjs.com/) から必要なモジュールをインストール
+### [node.js](https://nodejs.org/en/)（v6~）をグローバルインストール
+インストール済みの場合はスキップ
+node.js は直接インストールする方法やバージョン管理ツールを使う方法など様々あるのでインストール方法は省略
 
+### [npm](https://www.npmjs.com/) を v5~ にアップデート
+アップデート済みの場合はスキップ
+v5 以降では `package-lock.json` が使えるので依存関係を共通化できる為
+```
+$ npm update -g npm
+```
+
+## 環境構築
 ```bash
 $ npm install
 ```
@@ -15,8 +24,8 @@ $ npm install
 ```bash
 $ npm install --prefer-offline
 ```
-高速化ではないが、あればローカルキャッシュを使う為、
-ネットワーク利用率が下がるので、通信が状況が悪い時などに使用
+直接速度に影響するものではないが、あればローカルキャッシュを使う為、ネットワーク利用率が下り高速化される可能性もある。
+通信が状況が悪い時などに使用するとよい。
 
 
 
@@ -24,118 +33,70 @@ $ npm install --prefer-offline
 
 ## タスク
 
-| コマンド                   |
-|:---------------------------|
-| npm run watch              |
-| npm run build              |
-| npm run build:production   |
-| npu run imagemin           |
-| npu run php-server         |
-
-### npm run watch
-pug, stylus, fusebox, sprite の監視
-
-### npm run build
-pug, stylus, fusebox のトランスパイル、sprite の生成をして、それらを監視
-
-### npm run production
-本番・納品用のタスクを実行
-
-- pug, stylus, fusebox を圧縮（map ファイルの出力なし）
-- sprite を圧縮
-- imagemin タスク実行
-- clean タスク実行
-
-### npu run imagemin
-画像を圧縮
-
-### npu run php-server
-PHP のビルトインサーバを起動
-
+| コマンド                 ||
+|:-------------------------||
+| npm run watch            |`pug` `stylus` `webpack` `sprite` を監視|
+| npm run build            |`pug` `stylus` `webpack` をトランスパイル <br> `sprite` を生成 <br> `pug` `stylus` `webpack` `sprite` を監視|
+| npm run build:production |`pug` `stylus` `webpack` をトランスパイル（圧縮） <br> `stylus` `webpack` の sourcemap 無し <br> `sprite` を生成 <br> `images/minify/` フォルダ内画像を圧縮・出力 <br> 不要ファイルを削除 |
+| npu run imagemin         |`images/minify/` フォルダ内画像を圧縮・出力|
+| npu run php-server       |PHP のビルトインサーバを起動|
 
 ## オプション
 
-| コマンド                     |
-|:-----------------------------|
-| --coding                     |
-| --scripting                  |
-| --viewing-update             |
-| --viewing-update-pug         |
-| --viewing-update-pug-factory |
-| --viewing-update-stylus      |
-| --viewing-update-fusebox     |
-| --php                        |
+| コマンド                     ||
+|:-----------------------------||
+| --coding                     |`webpack` を実行しない|
+| --scripting                  |`pug` `stylus` `sprite` を実行しない|
+| --viewing-update             |表示中のファイルのみトランスパイル|
+| --viewing-update-pug         |`pug` は表示中ファイルのみトランスパイル|
+| --viewing-update-pug-factory |`pug-factory` は表示中のファイルのみトランスパイル|
+| --viewing-update-stylus      |`stylus` は表示中のファイルのみトランスパイル|
+| --viewing-update-webpack     |`webpack` は表示中のファイルのみトランスパイル|
+| --php                        |サーバに PHP のビルトインサーバを使用 <br> ※ `php-server` で PHP のビルトインサーバ起動が必要|
 
 タスクコマンドの後に追加して使用
-
 ```bash
 # 例
-$ npm run build -- --php
+$ npm run build -- --coding
 ```
 
-### --coding
-fusebox タスクを実行しない
-
-### --scripting
-pug、stylus、sprite タスクを実行しない
-
-### --viewing-update
-表示中のページに関するファイルのみトランスパイル
-
-### --viewing-update-pug
-pug を表示中のページに関するファイルのみトランスパイル
-
-### --viewing-update-pug-factory
-pug-factory を表示中のページに関するファイルのみトランスパイル
-
-### --viewing-update-stylus
-stylus を表示中のページに関するファイルのみトランスパイル
-
-### --viewing-update-fusebox
-fusebox を表示中のページに関するファイルのみトランスパイル
-
-### --php
-browser-sync のサーバに PHP ビルトインサーバを使用
-※別途 `npu run php-server` コマンドで PHP ビルトインサーバ立ち上げが必要
 
 
-
-# local server
-ローカルサーバーは [BrowserSync](https://www.browsersync.io/) を使用
+# Local Server
+ローカルサーバは [BrowserSync](https://www.browsersync.io/) を使用  
 ※PHP 使用時は PHP ビルトインサーバと連携
 
 ### ポート
-- 3000 -> /htdocs/ をルートとして起動
-- 3001 -> BrowserSync のコントロールパネルを起動
-- 3002 -> /.url-list/ をルートとして起動（URL一覧表示用）
+- 3000 -> `htdocs/` をルートとしてサイトを表示
+- 3001 -> BrowserSync のコントロールパネルを表示
+- 3002 -> `.url-list/` をルートとして URL 一覧を表示
 
 
 
 # HTML
-[pug](https://github.com/pugjs/pug) をトランスパイル
+[pug](https://pugjs.org/) を使用
+`pug/src/` 以下の pug ファイルをトランスパイルし `htdocs/` に出力
 
-/pug/src/ 以下の pug ファイルをトランスパイルし /htdocs/ 以下に出力
+## Members
 
-## 用意されている変数
+| メンバ・メソッド | 内容              |
+|:-----------------|:------------------|
+| isProduction     | production フラグ |
+| basedir          | pug のルート      |
+| join()           | パス結合          |
+| relative()       | 相対パス          |
 
-| 変数名       | 内容                       |
-|:-------------|:---------------------------|
-| dirname      | ディレクトリ名             |
-| filename     | ファイル名                 |
-| relative     | 相対パス                   |
-| isProduction | productionタスク時のフラグ |
-
-## 用意されている [filters](http://jade-lang.com/reference/filters/)
+## [filters](https://pugjs.org/language/filters.html)
 
 | filters名  | 内容                                                 |
 |:-----------|:-----------------------------------------------------|
 | do-nothing | そのまま出力（先頭は改行、インデントオプションあり） |
 
 ### do-nothing のインデントオプション
-1行目に `{{indent=[数値]}}` を追加することで数値の数だけスペースを追加します。
+`{{indent=[数値]}}` を追加することで数値の数だけスペースを追加される
 
-```jade
-// 例
+```pug
+//- 例
 :do-nothing
   {{indent=2}}
   <div>
@@ -144,23 +105,23 @@ browser-sync のサーバに PHP ビルトインサーバを使用
 ```
 
 ## Factory
-テンプレートファイル（pug）と json から html 自動生成
+テンプレート（pug）と json から html を生成し `htdocs/` に出力
 
 ### テンプレートファイル
-/pug/factorys/ 以下の pug ファイル  
-`{{vars}}` に json から取得したデータが変数として挿入される
+`pug/factory/` 以下の pug ファイル  
+※ファイル内の `{{vars}}` が json のデータに置き換えられる
 
 ### データファイル
-/pug/factorys/ 以下の json ファイル
+`pug/factory/` 以下の json ファイル
 
 ```javascript
-{ "factorys/index.pug": {  // 使用するテンプレートを指定
+{ "factory/index": {  // 使用するテンプレートを指定
 
-  "factory/index.pug": {  // 出力先のパスを指定（拡張は.pug）
-    "factoryTitle": "タイトル1",  // key が変数名、value が 値として出力される
+  "fac/index": {  // 出力先のパスを指定
+    "factoryTitle": "タイトル1",  // key が変数名、value が 値として出力
     "factoryContents": "コンテンツ1"
   },
-  "factory/hoge/index.pug": {
+  "fac/hoge/index": {
     "factoryTitle": "タイトル2",
     "factoryContents": "コンテンツ2<br>コンテンツ2"
   }
@@ -171,75 +132,68 @@ browser-sync のサーバに PHP ビルトインサーバを使用
 
 
 # CSS
-[Stylus](http://stylus-lang.com/) をトランスパイル
-
-/stylus/src/ 以下の stylus ファイルをトランスパイルし /htdocs/ 以下に出力
+[Stylus](http://stylus-lang.com/) でトランスパイル  
+`stylus/src/` 以下の stylus ファイルをトランスパイルし `htdocs/` に出力
 
 
 
 # Image
 
 ## Sprite
-/images/sprite/ 以下の画像をスプライト化して /htdocs/ 以下に出力  
+`images/sprite/` 以下の画像をスプライト化して `htdocs/` に出力  
 最終ディレクトリ名がファイル名になる
 
 > 例  
-/images/sprite/images/sample/a.png  
-/images/sprite/images/sample/b.png  
+`images/sprite/images/sample/a.png`  
+`images/sprite/images/sample/b.png`  
 ↓  
-/htdocs/images/sample.png
+`htdocs/images/sample.png`
 
-Stylus で使用する為に /stylus/imports/sprite.styl が出力  
+Stylus で使用する為に `stylus/imports/sprite.styl` を出力  
 [mixins](http://stylus-lang.com/docs/mixins.html) を import して使用
 
 ```stylus
 // 例
-
-@import "../../imports/sprite"
-
+@import "stylus/imports/sprite"
 #a
   sprite("images/sample/a.png")  // スプライト化する前のフィアルパスを指定
 #b
   sprite("images/sample/b.png")
 ```
 
-
-## image minimizing
-/images/minify/ 以下の画像を圧縮して /htdocs/ 以下に出力  
+## Image Minify
+`images/minify/` 以下の画像を圧縮して `htdocs/` に出力  
 
 
 
 # JavaScript
-[Babel](https://babeljs.io/)（[es2015](https://babeljs.io/docs/plugins/preset-es2015/)、[stage-0](https://babeljs.io/docs/plugins/preset-stage-0/)）をトランスパイルし、[FuseBox](http://fuse-box.org/) でバンドル
+[Babel](https://babeljs.io/)（[es2015](https://babeljs.io/docs/plugins/preset-es2015/)、[stage-0](https://babeljs.io/docs/plugins/preset-stage-0/)）でトランスパイルし、[webpack](https://webpack.js.org/) でバンドル  
+`webpack/src/` 以下の js ファイルをトランスパイルし `htdocs/` に出力
 
-/fusebox/src/ 以下の js ファイルをトランスパイルし /htdocs/ 以下に出力
-
-
-## FuseBox
+## webpack
 パッケージマネージャーは [npm](https://www.npmjs.com/) を使用
 
 
 
-# URL list
+# URL List
 3002ポートにURL一覧を表示
 
-/.url-list/index.tmp がテンプレートファイル  
-/.url-list/index.html にファイル一覧のデータを追加して出力
+テンプレート（`.url-list/index.tmp`）  
+`.url-list/index.html` にファイル一覧データを追加して出力
 
 テストサーバー等へリンクさせる場合は以下を更新
-
-```js:/.url-list/index.tmp
+```js:.url-list/index.tmp
 const root = 'http://domain.com/';
 ```
 
 
 
 # Clean
-不要ファイル削除
+不要ファイル削除  
 変更する場合は以下を更新
 
-```js:/task-config.js
-deletes: [
-  'htdocs/**/.DS_Store', 'htdocs/**/Thumb.db', 'htdocs/**/*.map',
-],
+```js:task-config.js
+  deletes: [
+    'htdocs/**/.DS_Store', 'htdocs/**/Thumb.db', 'htdocs/**/*.map',
+  ],
 ```
