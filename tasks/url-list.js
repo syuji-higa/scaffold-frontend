@@ -32,7 +32,7 @@ export default class UrlList {
     const { dest } = config.path;
     chokidar.watch(join(dest, '**/*.+(html|php)'), { ignoreInitial: true })
       .on('all', (evt, path) => {
-        if(!evt.match(/(add|unlink)/)) return;
+        if(!evt.match(/^(add|unlink)$/)) return;
         fileLog(evt, path);
         this._build();
       });

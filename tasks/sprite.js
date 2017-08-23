@@ -1,10 +1,10 @@
 import config from '../tasks-config';
 import { join, relative, dirname } from 'path';
-import FileCache from './utility/file-cache';
 import TaskLog from './utility/task-log';
 import { glob } from './utility/glob';
 import { mkfile } from './utility/file';
 import { fileLog } from './utility/file-log';
+import { sameFile } from './utility/file';
 import { createDebounce } from './utility/debounce';
 import chokidar from 'chokidar';
 import Spritesmith from 'spritesmith';
@@ -45,7 +45,6 @@ sprite-retina(filepath)
 
   constructor() {
     this._taskLog   = new TaskLog('sprite');
-    this._fileCache = new FileCache();
     this._debounce  = createDebounce();
   }
 
@@ -67,7 +66,7 @@ sprite-retina(filepath)
     const { sprite } = config.images;
     chokidar.watch(join(sprite, '**/*.png'), { ignoreInitial: true })
       .on('all', (evt, path) => {
-        if(!evt.match(/(add|unlink|change)/)) return;
+        if(!evt.match(/^(add|unlink|change)$/)) return;
         fileLog(evt, path);
         const { _debounce } = this;
         _debounce(() => {
@@ -82,11 +81,12 @@ sprite-retina(filepath)
    */
   _build() {
     const { sprite, styleDest } = config.images;
-    const { _taskLog, _fileCache } = this;
-    return (async () => {
+    const { _taskLog } = this;
+    return (async() => {
       _taskLog.start();
-      const _paths   = await glob(join(sprite, '**/*.+(png|jpg|gif|svg)'));
+      const _paths = await glob(join(sprite, '**/*.+(png|jpg|gif|svg)'));
       const _pathMap = this._groupBy(_paths);
+
       const _spritehashs = await Promise.all((() => {
         const _promises = [];
         _pathMap.forEach((paths, key) => {
@@ -95,9 +95,12 @@ sprite-retina(filepath)
         return _promises;
       })());
       const _css = this._getCss(this._flatten(_spritehashs));
-      if(_css && _fileCache.mightUpdate(styleDest, new Buffer(_css, 'utf8'))) {
-        await mkfile(styleDest, _css);
-        fileLog('create', styleDest);
+      if(_css) {
+        const _isSame = await sameFile(styleDest, new Buffer(_css, 'utf8'));
+        if(!_isSame) {
+          await mkfile(styleDest, _css);
+          fileLog('create', styleDest);
+        }
       }
       _taskLog.finish();
     })();
@@ -124,7 +127,7 @@ sprite-retina(filepath)
    */
   _spritesmith(key, paths) {
     const { sprite, dest } = config.images;
-    const { _pngquantOpts, _spriteOpts, _fileCache } = this;
+    const { _pngquantOpts, _spriteOpts } = this;
 
     return new Promise((resolve) => {
       Spritesmith.run(Object.assign({ src: paths }, _spriteOpts), (err, result) => {
@@ -133,11 +136,12 @@ sprite-retina(filepath)
         const _key  = `${ key }.png`;
         const _dest = join(dest, _key);
         (async() => {
-          const _img = await this._getImgBuf(image);
-          if(_fileCache.mightUpdate(_dest, _img)) {
-            await mkfile(_dest, _img.toString('base64'), 'base64');
+          const _buf    = await this._getImgBuf(image);
+          const _isSame = await sameFile(_dest, _buf);
+          if(!_isSame) {
+            await mkfile(_dest, _buf.toString('base64'), 'base64');
             fileLog('create', _dest);
-          };
+          }
           resolve(Object.entries(coordinates).reduce((memo, [path, style]) => {
             memo[relative(sprite, path)] = Object.assign(style, { url: _key });
             return memo;

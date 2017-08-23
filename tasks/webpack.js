@@ -129,8 +129,8 @@ export default class Webpack extends Base {
             return resolve();
           }
           const _path      = join(root, _destDir, _destFile);
-          const _js        = fs.readFileSync(_path);
-          const _sourcemap = fs.readFileSync(`${ _path }.map`);
+          const _js        = readFileSync(_path);
+          const _sourcemap = readFileSync(`${ _path }.map`);
           resolve({ js: _js, sourcemap: _sourcemap });
         });
       });

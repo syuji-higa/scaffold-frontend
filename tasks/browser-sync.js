@@ -1,7 +1,9 @@
 import config from '../tasks-config';
-import { join } from 'path';
+import { readFile } from 'fs';
+import { join, dirname, extname } from 'path';
 import bs from 'browser-sync';
 import TaskLog from './utility/task-log';
+import { errorLog } from './utility/error-log';
 import chokidar from 'chokidar';
 
 const browserSync        = bs.create();
@@ -46,13 +48,13 @@ export default class BrowserSync {
           if(!argv['php']) {
             Object.assign(_opts, {
               server: {
-                middleware: this._middleware,
+                middleware: [this._replace.bind(this), this._setViewingFile.bind(this)],
                 baseDir   : path.dest,
               },
             });
           } else {
             Object.assign(_opts, {
-              middleware: this._middleware,
+              middleware: [this._replace.bind(this), this._setViewingFile.bind(this)],
               proxy     : '0.0.0.0:3010',
             });
           }
@@ -65,12 +67,89 @@ export default class BrowserSync {
     })();
   }
 
+  _watch() {
+    const { dest } = config.path;
+    const { destSet } = NS.curtFiles;
+
+    // compile files
+    chokidar.watch(join(dest, '**/*.(html|php|css|js)'), { ignoreInitial: true })
+      .on('all', (event, path) => {
+        if(![...destSet].includes(path)) return;
+        browserSync.reload(path);
+      });
+
+    // image files
+    chokidar.watch(join(dest, '**/*.(png|jpg|jpeg|gif|svg)'), { ignoreInitial: true })
+      .on('all', (event, path) => {
+        browserSync.reload(path);
+      });
+  }
+
   /**
    * @param {Object} req
    * @param {Object} res
    * @param {function} next
    */
-  _middleware(req, res, next) {
+  _replace(req, res, next) {
+    const _urlStrs = req.url.match(/^([^.]+(\.(.+))?)?$/);
+
+    if(!_urlStrs) {
+      return next();
+    }
+
+    const _path = (() => {
+      const _p = _urlStrs[2] ? _urlStrs[0] : join(_urlStrs[0], 'index.html');
+      const { dest } = config.path;
+      return join(dest, _p);
+    })();
+
+    if(err) return next();
+    switch(extname(_path)) {
+      case '.html':
+      case '.shtml':
+        readFile(_path, (err, buf) => {
+          if(err) {
+            return next();
+          }
+          (async() => {
+            let _html = buf.toString();
+            _html = await this._ssi(dirname(_path), _html);
+            res.writeHead(200, { 'Content-Type': 'text/html' });
+            res.end(_html);
+          })();
+        });
+        break;
+      default:
+        next();
+    }
+  }
+
+  /**
+   * @param {string} dir
+   * @param {string} html
+   * @return {Promise}
+   */
+  _ssi(dir, html) {
+    return html.replace(/<!--#include file="(.+)" -->/g, (str, path) => {
+      const _path = join(dir, path);
+      return new Promise((resolve) => {
+        readFile(_path, (err, buf) => {
+          if(err) {
+            errorLog('browser-sync ssi', `No such file, open '${ _path }'.`);
+            resolve('');
+          }
+          resolve(buf.toString());
+        });
+      });
+    });
+  }
+
+  /**
+   * @param {Object} req
+   * @param {Object} res
+   * @param {function} next
+   */
+  _setViewingFile(req, res, next) {
     const _urlStrs = req.url.match(/^([^.]+(\.[^/]+)?).*?$/);
     const _path    = _urlStrs[1];
     const _ext     = _urlStrs[2];
@@ -82,6 +161,7 @@ export default class BrowserSync {
       destSet.add(join(dest, _path));
       switch(_ext) {
         case '.html':
+        case '.shtml':
         case '.php':
           pugSet.add(join(pug.src, _path.replace(_ext, '.pug')));
           break;
@@ -103,24 +183,6 @@ export default class BrowserSync {
     }
 
     next();
-  }
-
-  _watch() {
-    const { dest } = config.path;
-    const { destSet } = NS.curtFiles;
-
-    // compile files
-    chokidar.watch(join(dest, '**/*.(html|php|css|js)'), { ignoreInitial: true })
-      .on('all', (event, path) => {
-        if(![...destSet].includes(path)) return;
-        browserSync.reload(path);
-      });
-
-    // image files
-    chokidar.watch(join(dest, '**/*.(png|jpg|jpeg|gif|svg)'), { ignoreInitial: true })
-      .on('all', (event, path) => {
-        browserSync.reload(path);
-      });
   }
 
 }

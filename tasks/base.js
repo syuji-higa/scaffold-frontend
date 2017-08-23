@@ -54,11 +54,11 @@ export default class Base {
     const { _fileCache } = this;
     chokidar.watch(target, { ignoreInitial: true })
       .on('all', (evt, path) => {
-        if(!evt.match(/(add|change)/) || !_fileCache.mightUpdate(path)) return;
-        fileLog(evt, path);
-        const { root } = config.path;
-        const { _taskLog } = this;
         (async () => {
+          if(!evt.match(/^(add|change)$/) || await !_fileCache.mightUpdate(path)) return;
+          fileLog(evt, path);
+          const { root } = config.path;
+          const { _taskLog } = this;
           _taskLog.start();
           await fn(relative(root, path));
           _taskLog.finish();
