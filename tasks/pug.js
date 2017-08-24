@@ -1,6 +1,7 @@
 import PugBase from './pug-base';
 import config from '../tasks-config';
 import { join, relative } from 'path';
+import { errorLog } from './utility/error-log';
 import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
 import pug from 'pug';
@@ -47,20 +48,21 @@ export default class Pug extends PugBase {
       const _dest = join(dest, relative(src, path)).replace('.pug', _ext);
       const _opts = Object.assign(_pugOpts, this._getMembers(path));
 
-      let _html = await new Promise((resolve) => {
+      let _html = await new Promise((resolve, reject) => {
         pug.renderFile(path, _opts, (err, html) => {
-          if(err) {
-            console.log(err.message);
-            return resolve(null);
-          }
+          if(err) return reject(err);
           resolve(html);
         });
-      });
+      })
+        .catch((err) => {
+          errorLog('pug', err.message);
+        });
+
       if(!_html) return;
       if(charset !== 'utf8') {
         _html = iconv.encode(_html, charset).toString();
       }
-      
+
       const _isSame = await sameFile(_dest, _html);
       if(!_isSame) {
         await mkfile(_dest, _html);

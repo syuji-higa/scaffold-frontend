@@ -1,7 +1,7 @@
 import { createHash, update, digest } from 'crypto';
 
 /**
- * @param {Uint8Array} buf
+ * @param {Buffer} buf
  * @return {string}
  */
 export const toHash = (buf) => {

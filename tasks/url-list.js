@@ -1,10 +1,11 @@
 import config from '../tasks-config';
 import { join, relative, dirname, extname } from 'path';
-import { readFileSync } from 'fs';
 import TaskLog from './utility/task-log';
-import { glob } from './utility/glob';
+import { errorLog } from './utility/error-log';
 import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
+import { readFile } from './utility/fs';
+import { glob } from './utility/glob';
 import chokidar from 'chokidar';
 import deepAssign from 'deep-assign';
 
@@ -56,9 +57,10 @@ export default class UrlList {
         deepAssign(_urlHash, _obj);
       }
 
-      const _buf  = await readFileSync(tmp);
-      const _html = _buf.toString().replace('{{data}}', JSON.stringify(_urlHash));
+      const _buf = await readFile(tmp, (err) => errorLog('url-list', err));
+      if(!_buf) return;
 
+      const _html   = _buf.toString().replace('{{data}}', JSON.stringify(_urlHash));
       const _isSame = await sameFile(dest, new Buffer(_html, 'utf8'));
       if(!_isSame) {
         await mkfile(dest, _html);

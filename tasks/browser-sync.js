@@ -1,9 +1,10 @@
 import config from '../tasks-config';
-import { readFile } from 'fs';
+import fs from 'fs';
 import { join, dirname, extname } from 'path';
 import bs from 'browser-sync';
 import TaskLog from './utility/task-log';
 import { errorLog } from './utility/error-log';
+import { readFile } from './utility/fs';
 import chokidar from 'chokidar';
 
 const browserSync        = bs.create();
@@ -103,14 +104,11 @@ export default class BrowserSync {
       return join(dest, _p);
     })();
 
-    if(err) return next();
     switch(extname(_path)) {
       case '.html':
       case '.shtml':
-        readFile(_path, (err, buf) => {
-          if(err) {
-            return next();
-          }
+        fs.readFile(_path, (err, buf) => {
+          if(err) return next();
           (async() => {
             let _html = buf.toString();
             _html = await this._ssi(dirname(_path), _html);
@@ -127,21 +125,27 @@ export default class BrowserSync {
   /**
    * @param {string} dir
    * @param {string} html
-   * @return {Promise}
+   * @return {Promise<string>}
    */
   _ssi(dir, html) {
-    return html.replace(/<!--#include file="(.+)" -->/g, (str, path) => {
-      const _path = join(dir, path);
-      return new Promise((resolve) => {
-        readFile(_path, (err, buf) => {
-          if(err) {
-            errorLog('browser-sync ssi', `No such file, open '${ _path }'.`);
-            resolve('');
-          }
-          resolve(buf.toString());
-        });
-      });
-    });
+    const _rInc     = /<!--#include file=".+" -->/g;
+    const _includes = html.match(_rInc);
+
+    return (async() => {
+      let _html = html;
+      if(_includes) {
+        await Promise.all(_includes.map((inc) => {
+          const _path = join(dir, inc.match(/file="(.+)"/)[1]);
+          return (async() => {
+            const _buf = await readFile(_path, (err, path) => {
+              errorLog('browser-sync ssi', `No such file, open '${ path }'.`);
+            });
+            _html = _html.replace(inc, _buf.toString());
+          })();
+        }));
+      }
+      return _html;
+    })();
   }
 
   /**

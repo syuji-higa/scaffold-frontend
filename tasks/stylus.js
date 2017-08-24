@@ -1,9 +1,10 @@
 import Base from './base';
 import config from '../tasks-config';
-import { readFileSync } from 'fs';
 import { join, relative, basename } from 'path';
+import { errorLog } from './utility/error-log';
 import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
+import { readFile } from './utility/fs';
 import stylus from 'stylus';
 import nib from 'nib';
 import iconv from 'iconv-lite';
@@ -44,8 +45,11 @@ export default class Stylus extends Base {
     const { argv } = NS;
 
     return (async() => {
-      const _str = readFileSync(join(root, path), 'utf-8');
-      const _stylus = stylus(_str)
+      const _path = join(root, path);
+      const _buf  = await readFile(_path, (err) => errorLog('stylus', err));
+      if(!_buf) return;
+
+      const _stylus = stylus(_buf.toString())
         .use(nib())
         .set('filename', basename(path))
         .set('include css', true)
@@ -54,16 +58,17 @@ export default class Stylus extends Base {
         .set('compress', argv['production'])
         .set('sourcemap', !argv['production']);
 
-      let _css = await new Promise((resolve) => {
+      let _css = await new Promise((resolve, reject) => {
         _stylus.render((err, css) => {
-          if(err) {
-            console.log(err.message);
-            return resolve(null);
-          }
+          if(err) return reject(err);
           resolve(css);
         });
-      });
+      })
+        .catch((err) => {
+          errorLog('stylus', err.message);
+        });
       if(!_css) return;
+
       if(charset !== 'utf8') {
         _css = iconv.encode(_css, charset).toString();
       }

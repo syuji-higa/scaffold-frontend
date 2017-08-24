@@ -1,11 +1,10 @@
 import config from '../tasks-config';
 import { join, relative, dirname } from 'path';
 import TaskLog from './utility/task-log';
-import { glob } from './utility/glob';
-import { mkfile } from './utility/file';
-import { fileLog } from './utility/file-log';
-import { sameFile } from './utility/file';
 import { createDebounce } from './utility/debounce';
+import { mkfile, sameFile } from './utility/file';
+import { fileLog } from './utility/file-log';
+import { glob } from './utility/glob';
 import chokidar from 'chokidar';
 import Spritesmith from 'spritesmith';
 import imagemin from 'imagemin';
@@ -104,7 +103,7 @@ sprite-retina(filepath)
           fileLog('create', styleDest);
         }
       }
-      
+
       _taskLog.finish();
     })();
   }
@@ -132,9 +131,9 @@ sprite-retina(filepath)
     const { sprite, dest } = config.images;
     const { _pngquantOpts, _spriteOpts } = this;
 
-    return new Promise((resolve) => {
+    return new Promise((resolve, reject) => {
       Spritesmith.run(Object.assign({ src: paths }, _spriteOpts), (err, result) => {
-        if(err) throw new Error(err);
+        if(err) return reject(err);
         const { coordinates, properties, image } = result;
         const _key  = `${ key }.png`;
         const _dest = join(dest, _key);
@@ -152,7 +151,10 @@ sprite-retina(filepath)
           }, {}));
         })();
       });
-    });
+    })
+      .catch((err) => {
+        errorLog('sprite', err);
+      });
   }
 
   /**
@@ -178,20 +180,18 @@ ${ _mixin }`;
   }
 
   /**
-   * @param {Uint8Array} buf
+   * @param {Buffer} buf
+   * @return {Promise}
    */
   _getImgBuf(buf) {
     const { argv } = NS;
-    if(argv['production']) {
-      const { _pngquantOpts } = this;
-      return imagemin.buffer(buf, {
-        plugins: [pngquant(_pngquantOpts)],
-      });
-    } else {
-      return new Promise((resolve) => {
-        return resolve(buf);
-      });
+    if(!argv['production']) {
+      return Promise.resolve(buf);
     }
+    const { _pngquantOpts } = this;
+    return imagemin.buffer(buf, {
+      plugins: [pngquant(_pngquantOpts)],
+    });
   }
 
 }

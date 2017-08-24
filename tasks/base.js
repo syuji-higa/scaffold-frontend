@@ -1,5 +1,4 @@
 import config from '../tasks-config';
-import { readFileSync } from 'fs';
 import { relative } from 'path';
 import FileCache from './utility/file-cache';
 import TaskLog from './utility/task-log';
@@ -25,7 +24,10 @@ export default class Base {
     return (async () => {
       const { argv } = NS;
       if(argv['build']) {
+        const { _taskLog } = this;
+        _taskLog.start();
         await this._buildAll();
+        _taskLog.finish();
       }
       const { _type } = this;
       new TaskLog(`watch ${ _type }`).start();
@@ -109,11 +111,8 @@ export default class Base {
    * @return {Promise}
    */
   _buildMultiple(paths) {
-    const { _taskLog } = this;
     return (async () => {
-      _taskLog.start();
       await Promise.all(paths.map((p) => this._build(p)));
-      _taskLog.finish();
     })();
   }
 

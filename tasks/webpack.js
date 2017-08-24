@@ -1,12 +1,12 @@
 import Base from './base';
 import config from '../tasks-config';
-import { readFileSync } from 'fs';
 import MemoryFS from 'memory-fs';
 import { join, relative, dirname, basename } from 'path';
+import FileCache from './utility/file-cache';
+import { errorLog } from './utility/error-log';
 import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
 import { glob } from './utility/glob';
-import FileCache from './utility/file-cache';
 import chokidar from 'chokidar';
 import webpack from 'webpack';
 import iconv from 'iconv-lite';
@@ -123,19 +123,21 @@ export default class Webpack extends Base {
       const _data = await new Promise((resolve) => {
         _compiler.run((err, stats) => {
           if(err) {
-            console.log(err);
+            errorLog('webpack', err);
             return resolve();
           }
           const _err = stats.compilation.errors;
           if(_err.length) {
-            console.log(_err[0].message);
+            errorLog('webpack', _err[0].message);
             return resolve();
           }
           const _path = join(root, _destDir, _destFile);
-          resolve({
-            jsBuf       : fs.readFileSync(_path),
-            sourcemapBuf: argv['production'] ? null : fs.readFileSync(`${ _path }.map`),
-          });
+
+          (async() => {
+            const _jsBuf        = await this._readFile(_path);
+            const _sourcemapBuf = await this._readFile(`${ _path }.map`);
+            resolve({ jsBuf: _jsBuf, sourcemapBuf: _sourcemapBuf });
+          })();
         });
       });
       if(!_data) return;
@@ -155,6 +157,22 @@ export default class Webpack extends Base {
         }
       }
     })();
+  }
+
+  /**
+   * @param {string} path
+   * @return {Promise<Buffer>}
+   */
+  _readFile(path) {
+    return new Promise((resolve, reject) => {
+      fs.readFile(path, (err, data) => {
+        if(err) return reject(err);
+        resolve(data);
+      });
+    })
+      .catch((err) => {
+        errorLog('webpack', err);
+      });
   }
 
 }

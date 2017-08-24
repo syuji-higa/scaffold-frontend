@@ -1,10 +1,11 @@
 import config from '../tasks-config';
 import { join, relative, dirname, extname } from 'path';
-import { readFileSync } from 'fs';
 import TaskLog from './utility/task-log';
-import { glob } from './utility/glob';
+import { errorLog } from './utility/error-log';
 import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
+import { readFile } from './utility/fs';
+import { glob } from './utility/glob';
 import imagemin from 'imagemin';
 import pngquant from 'imagemin-pngquant';
 import jpegtran from 'imagemin-jpegtran';
@@ -54,11 +55,12 @@ export default class Imagemin {
     const { _plugins } = this;
 
     return (async () => {
-      const _dest   = join(dest, relative(minify, path));
-      const _ext    = extname(path).replace('.', '');
-      const _buf    = readFileSync(path);
-      const _minBuf = await imagemin.buffer(_buf, { plugins: [_plugins[_ext]] });
+      const _dest = join(dest, relative(minify, path));
+      const _ext  = extname(path).replace('.', '');
+      const _buf  = await readFile(path, (err) => errorLog('imagemin', err));
+      if(!_buf) return;
 
+      const _minBuf = await imagemin.buffer(_buf, { plugins: [_plugins[_ext]] });
       const _isSame = await sameFile(_dest, _minBuf);
       if(!_isSame) {
         await mkfile(_dest, _minBuf.toString('base64'), 'base64');
