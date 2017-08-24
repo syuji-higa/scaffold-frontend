@@ -78,6 +78,7 @@ export default class Stylus extends Base {
       if(!_isSame) {
         await mkfile(_dest, _css);
         fileLog('create', _dest);
+        
         const { sourcemap } = _stylus;
         if(sourcemap) {
           const _mapDest = `${ _dest }.map`;

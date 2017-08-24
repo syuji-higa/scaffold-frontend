@@ -11,7 +11,7 @@ import chokidar from 'chokidar';
 import webpack from 'webpack';
 import iconv from 'iconv-lite';
 
-const fs = new MemoryFS();
+const memoryFs = new MemoryFS();
 
 export default class Webpack extends Base {
 
@@ -119,7 +119,7 @@ export default class Webpack extends Base {
       }
 
       const _compiler = webpack(_opts);
-      _compiler.outputFileSystem = fs;
+      _compiler.outputFileSystem = memoryFs;
       const _data = await new Promise((resolve) => {
         _compiler.run((err, stats) => {
           if(err) {
@@ -140,8 +140,9 @@ export default class Webpack extends Base {
           })();
         });
       });
-      if(!_data) return;
-      let { jsBuf, sourcemapBuf } = _data;
+      let { jsBuf } = _data;
+      if(!jsBuf) return;
+
       if(charset !== 'utf8') {
         jsBuf = iconv.encode(jsBuf, charset);
       }
@@ -150,6 +151,8 @@ export default class Webpack extends Base {
       if(!_isSame) {
         await mkfile(_dest, jsBuf.toString());
         fileLog('create', _dest);
+        
+        const { sourcemapBuf } = _data;
         if(sourcemapBuf) {
           const _mapPath = `${ _dest }.map`;
           await mkfile(_mapPath, sourcemapBuf.toString());
@@ -165,7 +168,7 @@ export default class Webpack extends Base {
    */
   _readFile(path) {
     return new Promise((resolve, reject) => {
-      fs.readFile(path, (err, data) => {
+      memoryFs.readFile(path, (err, data) => {
         if(err) return reject(err);
         resolve(data);
       });

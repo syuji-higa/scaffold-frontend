@@ -59,6 +59,7 @@ export default class Pug extends PugBase {
         });
 
       if(!_html) return;
+      
       if(charset !== 'utf8') {
         _html = iconv.encode(_html, charset).toString();
       }

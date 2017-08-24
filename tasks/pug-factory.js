@@ -94,6 +94,7 @@ export default class PugFactory extends PugBase {
                   errorLog('pug-factory', err.message);
                 });
               if(!_html) return;
+              
               if(charset !== 'utf8') {
                 _html = iconv.encode(_html, charset).toString();
               }
