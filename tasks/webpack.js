@@ -3,7 +3,7 @@ import config from '../tasks-config';
 import { readFileSync } from 'fs';
 import MemoryFS from 'memory-fs';
 import { join, relative, dirname, basename } from 'path';
-import { mkfile } from './utility/file';
+import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
 import { glob } from './utility/glob';
 import FileCache from './utility/file-cache';
@@ -99,6 +99,7 @@ export default class Webpack extends Base {
       webpack: { charset, src, dest },
     } = config;
     const { argv } = NS;
+
     return (async() => {
       const _root     = relative(src, file);
       const _dest     = join(dest, _root);
@@ -112,9 +113,11 @@ export default class Webpack extends Base {
           filename: _destFile,
         },
       }, _webpackOpts);
-      if(argv['production'] && !_notMinifyFileNameSet.has(_destName)) {
+
+      if(argv['production'] && !_notMinifyFileNameSet.has(basename(_destFile, '.js'))) {
         Object.assign(_opts.plugins, _productionPlugins);
       }
+
       const _compiler = webpack(_opts);
       _compiler.outputFileSystem = fs;
       const _data = await new Promise((resolve) => {
@@ -128,23 +131,28 @@ export default class Webpack extends Base {
             console.log(_err[0].message);
             return resolve();
           }
-          const _path      = join(root, _destDir, _destFile);
-          const _js        = readFileSync(_path);
-          const _sourcemap = readFileSync(`${ _path }.map`);
-          resolve({ js: _js, sourcemap: _sourcemap });
+          const _path = join(root, _destDir, _destFile);
+          resolve({
+            jsBuf       : fs.readFileSync(_path),
+            sourcemapBuf: argv['production'] ? null : fs.readFileSync(`${ _path }.map`),
+          });
         });
       });
       if(!_data) return;
-      let { js, sourcemap } = _data;
+      let { jsBuf, sourcemapBuf } = _data;
       if(charset !== 'utf8') {
-        js = iconv.encode(js, charset).toString();
+        jsBuf = iconv.encode(jsBuf, charset);
       }
-      await mkfile(_dest, js);
-      fileLog('create', _dest);
-      if(!argv['production']) {
-        const _mapPath = `${ _dest }.map`;
-        await mkfile(_mapPath, sourcemap);
-        fileLog('create', _mapPath);
+
+      const _isSame = await sameFile(_dest, jsBuf);
+      if(!_isSame) {
+        await mkfile(_dest, jsBuf.toString());
+        fileLog('create', _dest);
+        if(sourcemapBuf) {
+          const _mapPath = `${ _dest }.map`;
+          await mkfile(_mapPath, sourcemapBuf.toString());
+          fileLog('create', _mapPath);
+        }
       }
     })();
   }

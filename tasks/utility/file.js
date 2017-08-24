@@ -1,6 +1,7 @@
 import { dirname } from 'path';
 import { readFile, writeFile } from 'fs';
 import mkdirp from 'mkdirp';
+import { getType } from './type';
 
 /**
  * @param {string} path
@@ -18,14 +19,17 @@ export const mkfile = (path, data, opts = {}) => {
 
 /**
  * @param {string} path
- * @param {Buffer} buf
+ * @param {Uint8Array|string} data
  * @return {Promise}
  */
-export const sameFile = (path, buf) => {
+export const sameFile = (path, data) => {
   return new Promise((resolve) => {
-    readFile(path, (err, buf_) => {
-      if(err) resolve(false);
-      resolve(Buffer.compare(buf, buf_) === 0);
+    readFile(path, (err, buf) => {
+      if(err) {
+        return resolve(false);
+      }
+      const _buf = getType(data) === 'String' ? new Buffer(data, 'utf8') : data;
+      resolve(Buffer.compare(_buf, buf) === 0);
     });
   });
 };

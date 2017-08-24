@@ -84,7 +84,8 @@ sprite-retina(filepath)
     const { _taskLog } = this;
     return (async() => {
       _taskLog.start();
-      const _paths = await glob(join(sprite, '**/*.+(png|jpg|gif|svg)'));
+
+      const _paths   = await glob(join(sprite, '**/*.+(png|jpg|gif|svg)'));
       const _pathMap = this._groupBy(_paths);
 
       const _spritehashs = await Promise.all((() => {
@@ -94,14 +95,16 @@ sprite-retina(filepath)
         });
         return _promises;
       })());
+
       const _css = this._getCss(this._flatten(_spritehashs));
       if(_css) {
-        const _isSame = await sameFile(styleDest, new Buffer(_css, 'utf8'));
+        const _isSame = await sameFile(styleDest, _css);
         if(!_isSame) {
           await mkfile(styleDest, _css);
           fileLog('create', styleDest);
         }
       }
+      
       _taskLog.finish();
     })();
   }
@@ -135,6 +138,7 @@ sprite-retina(filepath)
         const { coordinates, properties, image } = result;
         const _key  = `${ key }.png`;
         const _dest = join(dest, _key);
+
         (async() => {
           const _buf    = await this._getImgBuf(image);
           const _isSame = await sameFile(_dest, _buf);
@@ -174,7 +178,7 @@ ${ _mixin }`;
   }
 
   /**
-   * @param {Buffer} buf
+   * @param {Uint8Array} buf
    */
   _getImgBuf(buf) {
     const { argv } = NS;

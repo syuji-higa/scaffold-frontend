@@ -17,9 +17,8 @@ export default class Clean {
     const { _taskLog } = this;
 
     return (async () => {
-      const { deletes } = config;
-
       _taskLog.start();
+      const { deletes } = config;
       const _paths = await glob(deletes);
       if(_paths) {
         await Promise.all(_paths.map((path) => {

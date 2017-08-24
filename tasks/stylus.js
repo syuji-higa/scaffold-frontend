@@ -2,7 +2,7 @@ import Base from './base';
 import config from '../tasks-config';
 import { readFileSync } from 'fs';
 import { join, relative, basename } from 'path';
-import { mkfile } from './utility/file';
+import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
 import stylus from 'stylus';
 import nib from 'nib';
@@ -42,6 +42,7 @@ export default class Stylus extends Base {
   _build(path) {
     const { path: { root }, stylus: { charset, src, dest } } = config;
     const { argv } = NS;
+
     return (async() => {
       const _str = readFileSync(join(root, path), 'utf-8');
       const _stylus = stylus(_str)
@@ -52,6 +53,7 @@ export default class Stylus extends Base {
         .define('url', stylus.resolver())
         .set('compress', argv['production'])
         .set('sourcemap', !argv['production']);
+
       let _css = await new Promise((resolve) => {
         _stylus.render((err, css) => {
           if(err) {
@@ -65,13 +67,18 @@ export default class Stylus extends Base {
       if(charset !== 'utf8') {
         _css = iconv.encode(_css, charset).toString();
       }
-      const _dest = join(dest, relative(src, path)).replace('.styl', '.css');
-      await mkfile(_dest, _css);
-      fileLog('create', _dest);
-      if(!argv['production']) {
-        const _mapDest = `${ _dest }.map`;
-        await mkfile(_mapDest, JSON.stringify(_stylus.sourcemap));
-        fileLog('create', _mapDest);
+
+      const _dest   = join(dest, relative(src, path)).replace('.styl', '.css');
+      const _isSame = await sameFile(_dest, _css);
+      if(!_isSame) {
+        await mkfile(_dest, _css);
+        fileLog('create', _dest);
+        const { sourcemap } = _stylus;
+        if(sourcemap) {
+          const _mapDest = `${ _dest }.map`;
+          await mkfile(_mapDest, JSON.stringify(sourcemap));
+          fileLog('create', _mapDest);
+        }
       }
     })();
   }

@@ -1,8 +1,9 @@
 import config from '../tasks-config';
 import { join, relative, dirname, extname } from 'path';
+import { readFileSync } from 'fs';
 import TaskLog from './utility/task-log';
 import { glob } from './utility/glob';
-import { mkfile } from './utility/file';
+import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
 import imagemin from 'imagemin';
 import pngquant from 'imagemin-pngquant';
@@ -35,6 +36,7 @@ export default class Imagemin {
   _minifyMultiple() {
     const { minify } = config.images;
     const { _taskLog } = this;
+
     return (async () => {
       _taskLog.start();
       const _paths = await glob(join(minify, '**/*.+(png|jpg|gif|svg)'));
@@ -52,14 +54,16 @@ export default class Imagemin {
     const { _plugins } = this;
 
     return (async () => {
-      const _dest = dirname(join(dest, relative(minify, path)));
-      const _ext  = extname(path).replace('.', '');
-      const _files = await imagemin([path], _dest, {
-        plugins: [_plugins[_ext]],
-      });
-      const { data, path: __dest } = _files[0];
-      await mkfile(__dest, data.toString('base64'), 'base64');
-      fileLog('create', __dest);
+      const _dest   = join(dest, relative(minify, path));
+      const _ext    = extname(path).replace('.', '');
+      const _buf    = readFileSync(path);
+      const _minBuf = await imagemin.buffer(_buf, { plugins: [_plugins[_ext]] });
+
+      const _isSame = await sameFile(_dest, _minBuf);
+      if(!_isSame) {
+        await mkfile(_dest, _minBuf.toString('base64'), 'base64');
+        fileLog('create', _dest);
+      }
     })();
   }
 

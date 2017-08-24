@@ -3,7 +3,7 @@ import { join, relative, dirname, extname } from 'path';
 import { readFileSync } from 'fs';
 import TaskLog from './utility/task-log';
 import { glob } from './utility/glob';
-import { mkfile } from './utility/file';
+import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
 import chokidar from 'chokidar';
 import deepAssign from 'deep-assign';
@@ -44,8 +44,10 @@ export default class UrlList {
   _build() {
     const { path, urlList: { tmp, dest } } = config;
     const { _taskLog } = this;
+
     return (async () => {
       _taskLog.start();
+
       const _paths = await glob(join(path.dest, '**/*.+(html|php)'));
       const _urlHash = {};
       for(const path of _paths) {
@@ -53,10 +55,16 @@ export default class UrlList {
         const _obj = this._getUrlHash(_url);
         deepAssign(_urlHash, _obj);
       }
+
       const _buf  = await readFileSync(tmp);
       const _html = _buf.toString().replace('{{data}}', JSON.stringify(_urlHash));
-      await mkfile(dest, _html);
-      fileLog('create', dest);
+
+      const _isSame = await sameFile(dest, new Buffer(_html, 'utf8'));
+      if(!_isSame) {
+        await mkfile(dest, _html);
+        fileLog('create', dest);
+      }
+
       _taskLog.finish();
     })();
   }

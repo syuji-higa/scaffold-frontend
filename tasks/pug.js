@@ -1,7 +1,7 @@
 import PugBase from './pug-base';
 import config from '../tasks-config';
 import { join, relative } from 'path';
-import { mkfile } from './utility/file';
+import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
 import pug from 'pug';
 import iconv from 'iconv-lite';
@@ -41,10 +41,12 @@ export default class Pug extends PugBase {
   _build(path) {
     const { charset, src, dest } = config.pug;
     const { _pugOpts } = this;
+
     return (async() => {
       const _ext  = this._getExt(relative(src, path));
       const _dest = join(dest, relative(src, path)).replace('.pug', _ext);
       const _opts = Object.assign(_pugOpts, this._getMembers(path));
+
       let _html = await new Promise((resolve) => {
         pug.renderFile(path, _opts, (err, html) => {
           if(err) {
@@ -58,8 +60,12 @@ export default class Pug extends PugBase {
       if(charset !== 'utf8') {
         _html = iconv.encode(_html, charset).toString();
       }
-      await mkfile(_dest, _html);
-      fileLog('create', _dest);
+      
+      const _isSame = await sameFile(_dest, _html);
+      if(!_isSame) {
+        await mkfile(_dest, _html);
+        fileLog('create', _dest);
+      }
     })();
   }
 
