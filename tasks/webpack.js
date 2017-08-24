@@ -7,6 +7,7 @@ import { errorLog } from './utility/error-log';
 import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
 import { glob } from './utility/glob';
+import { encodeLineFeedCode } from './utility/line-feed-code';
 import chokidar from 'chokidar';
 import webpack from 'webpack';
 import iconv from 'iconv-lite';
@@ -96,7 +97,7 @@ export default class Webpack extends Base {
   _build(file) {
     const {
       path   : { root },
-      webpack: { charset, src, dest },
+      webpack: { charset, lineFeedCode, src, dest },
     } = config;
     const { argv } = NS;
 
@@ -120,7 +121,7 @@ export default class Webpack extends Base {
 
       const _compiler = webpack(_opts);
       _compiler.outputFileSystem = memoryFs;
-      const _data = await new Promise((resolve) => {
+      const { jsBuf, sourcemapBuf } = await new Promise((resolve) => {
         _compiler.run((err, stats) => {
           if(err) {
             errorLog('webpack', err);
@@ -140,19 +141,22 @@ export default class Webpack extends Base {
           })();
         });
       });
-      let { jsBuf } = _data;
       if(!jsBuf) return;
 
+      let _jsBuf = jsBuf;
+
+      if(lineFeedCode !== 'LF') {
+        _jsBuf = encodeLineFeedCode(_jsBuf, lineFeedCode);
+      }
       if(charset !== 'utf8') {
-        jsBuf = iconv.encode(jsBuf, charset);
+        _jsBuf = iconv.encode(_jsBuf, charset);
       }
 
-      const _isSame = await sameFile(_dest, jsBuf);
+      const _isSame = await sameFile(_dest, _jsBuf);
       if(!_isSame) {
-        await mkfile(_dest, jsBuf.toString());
+        await mkfile(_dest, _jsBuf);
         fileLog('create', _dest);
-        
-        const { sourcemapBuf } = _data;
+
         if(sourcemapBuf) {
           const _mapPath = `${ _dest }.map`;
           await mkfile(_mapPath, sourcemapBuf.toString());

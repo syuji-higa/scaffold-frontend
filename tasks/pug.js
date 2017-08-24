@@ -4,6 +4,7 @@ import { join, relative } from 'path';
 import { errorLog } from './utility/error-log';
 import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
+import { encodeLineFeedCode } from './utility/line-feed-code';
 import pug from 'pug';
 import iconv from 'iconv-lite';
 
@@ -40,7 +41,7 @@ export default class Pug extends PugBase {
    * @param {Promise}
    */
   _build(path) {
-    const { charset, src, dest } = config.pug;
+    const { charset, lineFeedCode, src, dest } = config.pug;
     const { _pugOpts } = this;
 
     return (async() => {
@@ -48,7 +49,7 @@ export default class Pug extends PugBase {
       const _dest = join(dest, relative(src, path)).replace('.pug', _ext);
       const _opts = Object.assign(_pugOpts, this._getMembers(path));
 
-      let _html = await new Promise((resolve, reject) => {
+      const _html = await new Promise((resolve, reject) => {
         pug.renderFile(path, _opts, (err, html) => {
           if(err) return reject(err);
           resolve(html);
@@ -59,14 +60,19 @@ export default class Pug extends PugBase {
         });
 
       if(!_html) return;
-      
+
+      let _buf = new Buffer(_html);
+
+      if(lineFeedCode !== 'LF') {
+        _buf = encodeLineFeedCode(_buf, lineFeedCode);
+      }
       if(charset !== 'utf8') {
-        _html = iconv.encode(_html, charset).toString();
+        _buf = iconv.encode(_buf, charset);
       }
 
-      const _isSame = await sameFile(_dest, _html);
+      const _isSame = await sameFile(_dest, _buf);
       if(!_isSame) {
-        await mkfile(_dest, _html);
+        await mkfile(_dest, _buf);
         fileLog('create', _dest);
       }
     })();

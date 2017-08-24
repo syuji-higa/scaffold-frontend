@@ -5,6 +5,7 @@ import { errorLog } from './utility/error-log';
 import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
 import { readFile } from './utility/fs';
+import { encodeLineFeedCode } from './utility/line-feed-code';
 import stylus from 'stylus';
 import nib from 'nib';
 import iconv from 'iconv-lite';
@@ -41,7 +42,7 @@ export default class Stylus extends Base {
    * @param {Promise}
    */
   _build(path) {
-    const { path: { root }, stylus: { charset, src, dest } } = config;
+    const { path: { root }, stylus: { charset, lineFeedCode, src, dest } } = config;
     const { argv } = NS;
 
     return (async() => {
@@ -58,7 +59,7 @@ export default class Stylus extends Base {
         .set('compress', argv['production'])
         .set('sourcemap', !argv['production']);
 
-      let _css = await new Promise((resolve, reject) => {
+      const _css = await new Promise((resolve, reject) => {
         _stylus.render((err, css) => {
           if(err) return reject(err);
           resolve(css);
@@ -69,16 +70,21 @@ export default class Stylus extends Base {
         });
       if(!_css) return;
 
+      let _cssBuf = new Buffer(_css);
+
+      if(lineFeedCode !== 'LF') {
+        _cssBuf = encodeLineFeedCode(_cssBuf, lineFeedCode);
+      }
       if(charset !== 'utf8') {
-        _css = iconv.encode(_css, charset).toString();
+        _cssBuf = iconv.encode(_cssBuf, charset);
       }
 
       const _dest   = join(dest, relative(src, path)).replace('.styl', '.css');
-      const _isSame = await sameFile(_dest, _css);
+      const _isSame = await sameFile(_dest, _cssBuf);
       if(!_isSame) {
-        await mkfile(_dest, _css);
+        await mkfile(_dest, _cssBuf);
         fileLog('create', _dest);
-        
+
         const { sourcemap } = _stylus;
         if(sourcemap) {
           const _mapDest = `${ _dest }.map`;

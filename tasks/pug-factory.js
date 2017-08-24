@@ -5,6 +5,7 @@ import { errorLog } from './utility/error-log';
 import { readFile } from './utility/fs';
 import { mkfile, sameFile } from './utility/file';
 import { fileLog } from './utility/file-log';
+import { encodeLineFeedCode } from './utility/line-feed-code';
 import { getType } from './utility/type';
 import pug from 'pug';
 import iconv from 'iconv-lite';
@@ -42,7 +43,7 @@ export default class PugFactory extends PugBase {
    */
   _build(path) {
     const { argv, isFirstBuild } = NS;
-    const { charset, root, dest } = config.pug;
+    const { charset, lineFeedCode, root, dest } = config.pug;
     const { pugSet } = NS.curtFiles;
     const { _pugOpts } = this;
 
@@ -84,7 +85,7 @@ export default class PugFactory extends PugBase {
               const _contents = _splitTmp[0] + _valsStr + _splitTmp[1];
               const _members  = this._getMembers(join(root, _srcPath));
               const _opts     = Object.assign(_pugOpts, _members);
-              let _html = await new Promise((resolve, reject) => {
+              const _html = await new Promise((resolve, reject) => {
                 pug.render(_contents, _opts, (err, html) => {
                   if(err) return reject(err);
                   resolve(html);
@@ -94,16 +95,21 @@ export default class PugFactory extends PugBase {
                   errorLog('pug-factory', err.message);
                 });
               if(!_html) return;
-              
+
+              let _buf = new Buffer(_html);
+
+              if(lineFeedCode !== 'LF') {
+                _buf = encodeLineFeedCode(_buf, lineFeedCode);
+              }
               if(charset !== 'utf8') {
-                _html = iconv.encode(_html, charset).toString();
+                _buf = iconv.encode(_buf, charset);
               }
 
               const _ext  = this._getExt(_srcPath);
               const _dest = join(dest, _srcPath).replace('.pug', _ext);
-              const _isSame = await sameFile(_dest, _html);
+              const _isSame = await sameFile(_dest, _buf);
               if(!_isSame) {
-                await mkfile(_dest, _html);
+                await mkfile(_dest, _buf);
                 fileLog('create', _dest);
               }
             })();

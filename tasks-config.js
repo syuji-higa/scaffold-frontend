@@ -1,10 +1,11 @@
-const charset = 'utf8';
-const dest    = 'htdocs';
-const pug     = 'pug';
-const stylus  = 'stylus';
-const webpack = 'webpack';
-const images  = 'images';
-const urlList = '.url-list';
+const charset      = 'utf8';
+const lineFeedCode = 'LF';  // 'CR+LF', 'LF', 'CR'
+const dest         = 'htdocs';
+const pug          = 'pug';
+const stylus       = 'stylus';
+const webpack      = 'webpack';
+const images       = 'images';
+const urlList      = '.url-list';
 
 export default {
   path: {
@@ -12,27 +13,30 @@ export default {
     dest: dest,
   },
   pug: {
-    charset: charset,
-    root   : pug,
-    src    : `${ pug }/src`,
-    tmp    : `${ pug }/(extends|includes)`,
-    factory: `${ pug }/factory`,
-    dest   : dest,
-    php    : [],  // 'all', ['index.pug', 'sp/index.pug']
+    charset     : charset,
+    lineFeedCode: lineFeedCode,
+    root        : pug,
+    src         : `${ pug }/src`,
+    tmp         : `${ pug }/(extends|includes)`,
+    factory     : `${ pug }/factory`,
+    dest        : dest,
+    php         : [],  // 'all', ['index.pug', 'sp/index.pug']
   },
   stylus: {
-    charset: charset,
-    root   : stylus,
-    src    : `${ stylus }/src`,
-    imports: `${ stylus }/imports`,
-    dest   : dest,
+    charset     : charset,
+    lineFeedCode: lineFeedCode,
+    root        : stylus,
+    src         : `${ stylus }/src`,
+    imports     : `${ stylus }/imports`,
+    dest        : dest,
   },
   webpack: {
-    charset: charset,
-    root   : webpack,
-    src    : `${ webpack }/src`,
-    imports: `${ webpack }/imports`,
-    dest   : dest,
+    charset     : charset,
+    lineFeedCode: lineFeedCode,
+    root        : webpack,
+    src         : `${ webpack }/src`,
+    imports     : `${ webpack }/imports`,
+    dest        : dest,
   },
   images: {
     root     : images,

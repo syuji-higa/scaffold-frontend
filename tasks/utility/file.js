@@ -19,8 +19,8 @@ export const mkfile = (path, data, opts = {}) => {
 
 /**
  * @param {string} path
- * @param {Uint8Array|string} data
- * @return {Promise}
+ * @param {Buffer|string} data
+ * @return {Promise<boolean>}
  */
 export const sameFile = (path, data) => {
   return new Promise((resolve) => {
@@ -28,7 +28,7 @@ export const sameFile = (path, data) => {
       if(err) {
         return resolve(false);
       }
-      const _buf = getType(data) === 'String' ? new Buffer(data, 'utf8') : data;
+      const _buf = getType(data) === 'String' ? new Buffer(data) : data;
       resolve(Buffer.compare(_buf, buf) === 0);
     });
   });

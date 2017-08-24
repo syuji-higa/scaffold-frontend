@@ -61,7 +61,7 @@ export default class UrlList {
       if(!_buf) return;
 
       const _html   = _buf.toString().replace('{{data}}', JSON.stringify(_urlHash));
-      const _isSame = await sameFile(dest, new Buffer(_html, 'utf8'));
+      const _isSame = await sameFile(dest, _html);
       if(!_isSame) {
         await mkfile(dest, _html);
         fileLog('create', dest);
