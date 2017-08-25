@@ -1,18 +1,6 @@
 import fs from 'fs';
 import { getType } from './type';
 
-export const hasFile = (path) => {
-  return new Promise((resolve) => {
-    try {
-      fs.accessSync(path);
-      resolve(true);
-    }
-    catch(err) {
-      resolve(false);
-    }
-  });
-};
-
 /**
  * @param {string} path
  * @param {string|function} [...args]

@@ -1,7 +1,19 @@
 import { dirname } from 'path';
-import { readFileSync, writeFile } from 'fs';
+import { accessSync, readFileSync, writeFile } from 'fs';
 import mkdirp from 'mkdirp';
 import { getType } from './type';
+
+export const hasFile = (path) => {
+  return new Promise((resolve) => {
+    try {
+      accessSync(path);
+      resolve(true);
+    }
+    catch(err) {
+      resolve(false);
+    }
+  });
+};
 
 /**
  * @param {string} path
