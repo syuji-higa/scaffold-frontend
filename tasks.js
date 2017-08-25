@@ -18,25 +18,28 @@ NS.curtFiles    = {
 };
 
 const { argv } = NS;
-const isAllTask = !argv['coding'] && !argv['scripting'];
+const needsAllTask = !argv['coding'] && !argv['scripting'];
 
-const firstTasks = [];
-if(isAllTask || argv['coding']) {
-  firstTasks.concat([new Pug().start(), new PugFactory().start(), new Sprite().start()]);
+const tasks = [[]];
+if(needsAllTask || argv['coding']) {
+  tasks[0].concat([new Pug().start(), new PugFactory().start(), new Sprite().start()]);
+  tasks[1] = [new Stylus().start()];
 }
-if(isAllTask || argv['scripting']) {
-  firstTasks.push(new Webpack().start());
+if(needsAllTask || argv['scripting']) {
+  tasks[0].push(new Webpack().start());
 }
 if(argv['production']) {
-  firstTasks.push(new Imagemin().start());
+  tasks[0].push(new Imagemin().start());
 }
 
 (async () => {
-  await Promise.all(firstTasks);
+  for(const t of tasks) {
+    await Promise.all(t);
+  }
   if(argv['production']) {
     await new Clean().start();
   }
-  await Promise.all([new Stylus().start(), new UrlList().start()]);
+  await new UrlList().start()
   NS.isFirstBuild = false;
   await new BrowserSync().start();
 })();
