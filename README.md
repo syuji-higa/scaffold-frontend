@@ -5,8 +5,8 @@
 ## 事前準備
 
 ### [node.js](https://nodejs.org/en/)（v6~）をグローバルインストール
-インストール済みの場合はスキップ
-node.js は直接インストールする方法やバージョン管理ツールを使う方法など様々あるのでインストール方法は省略
+インストール済みの場合はスキップ  
+node.js は直接インストールやバージョン管理ツールを使う方法など複数あるのでインストール方法は省略
 
 ### [npm](https://www.npmjs.com/) を v5~ にアップデート
 アップデート済みの場合はスキップ
@@ -24,8 +24,8 @@ $ npm install
 ```bash
 $ npm install --prefer-offline
 ```
-直接速度に影響するものではないが、あればローカルキャッシュを使う為、ネットワーク利用率が下り高速化される可能性もある。
-通信が状況が悪い時などに使用するとよい。
+直接速度に影響するものではないが、あればローカルキャッシュを使う為、ネットワーク利用率が下り高速化される可能性もある。  
+通信が状況が悪い時などに使用するとよいかと。
 
 
 
@@ -33,8 +33,8 @@ $ npm install --prefer-offline
 
 ## タスク
 
-| コマンド                 ||
-|:-------------------------||
+| コマンド                 |                                        |
+|:-------------------------|:---------------------------------------|
 | npm run watch            |`pug` `stylus` `webpack` `sprite` を監視|
 | npm run build            |`pug` `stylus` `webpack` をトランスパイル <br> `sprite` を生成 <br> `pug` `stylus` `webpack` `sprite` を監視|
 | npm run build:production |`pug` `stylus` `webpack` をトランスパイル（圧縮） <br> `stylus` `webpack` の sourcemap 無し <br> `sprite` を生成 <br> `images/minify/` フォルダ内画像を圧縮・出力 <br> 不要ファイルを削除 |
@@ -43,15 +43,15 @@ $ npm install --prefer-offline
 
 ## オプション
 
-| コマンド                     ||
-|:-----------------------------||
-| --coding                     |`webpack` を実行しない|
-| --scripting                  |`pug` `stylus` `sprite` を実行しない|
-| --viewing-update             |表示中のファイルのみトランスパイル|
-| --viewing-update-pug         |`pug` は表示中ファイルのみトランスパイル|
+| コマンド                     |                                                  |
+|:-----------------------------|:-------------------------------------------------|
+| --coding                     |`webpack` を実行しない                            |
+| --scripting                  |`pug` `stylus` `sprite` を実行しない              |
+| --viewing-update             |表示中のファイルのみトランスパイル                |
+| --viewing-update-pug         |`pug` は表示中ファイルのみトランスパイル          |
 | --viewing-update-pug-factory |`pug-factory` は表示中のファイルのみトランスパイル|
-| --viewing-update-stylus      |`stylus` は表示中のファイルのみトランスパイル|
-| --viewing-update-webpack     |`webpack` は表示中のファイルのみトランスパイル|
+| --viewing-update-stylus      |`stylus` は表示中のファイルのみトランスパイル     |
+| --viewing-update-webpack     |`webpack` は表示中のファイルのみトランスパイル    |
 | --php                        |サーバに PHP のビルトインサーバを使用 <br> ※ `php-server` で PHP のビルトインサーバ起動が必要|
 
 タスクコマンドの後に追加して使用
@@ -115,6 +115,7 @@ $ npm run build -- --coding
 `pug/factory/` 以下の json ファイル
 
 ```javascript
+// 例
 { "factory/index": {  // 使用するテンプレートを指定
 
   "fac/index": {  // 出力先のパスを指定
@@ -167,7 +168,7 @@ Stylus で使用する為に `stylus/imports/sprite.styl` を出力
 
 
 # JavaScript
-[Babel](https://babeljs.io/)（[es2015](https://babeljs.io/docs/plugins/preset-es2015/)、[stage-0](https://babeljs.io/docs/plugins/preset-stage-0/)）でトランスパイルし、[webpack](https://webpack.js.org/) でバンドル  
+[Babel](https://babeljs.io/)（[es2015](https://babeljs.io/docs/plugins/preset-es2015/), [stage-0](https://babeljs.io/docs/plugins/preset-stage-0/)）でトランスパイルし[webpack](https://webpack.js.org/) でバンドル  
 `webpack/src/` 以下の js ファイルをトランスパイルし `htdocs/` に出力
 
 ## webpack
@@ -176,10 +177,9 @@ Stylus で使用する為に `stylus/imports/sprite.styl` を出力
 
 
 # URL List
-3002ポートにURL一覧を表示
+3002 ポートにURL一覧を表示
 
-テンプレート（`.url-list/index.tmp`）  
-`.url-list/index.html` にファイル一覧データを追加して出力
+`.url-list/index.tmp` にファイル一覧データを追加して `.url-list/index.html` を出力
 
 テストサーバー等へリンクさせる場合は以下を更新
 ```js:.url-list/index.tmp
