@@ -33,7 +33,7 @@ $ npm install --prefer-offline
 
 ## タスク
 
-| コマンド                 |                                        |
+| コマンド                 | 説明                                   |
 |:-------------------------|:---------------------------------------|
 | npm run watch            |`pug` `stylus` `webpack` `sprite` を監視|
 | npm run build            |`pug` `stylus` `webpack` をトランスパイル <br> `sprite` を生成 <br> `pug` `stylus` `webpack` `sprite` を監視|
@@ -43,7 +43,7 @@ $ npm install --prefer-offline
 
 ## オプション
 
-| コマンド                     |                                                  |
+| コマンド                     | 説明                                             |
 |:-----------------------------|:-------------------------------------------------|
 | --coding                     |`webpack` を実行しない                            |
 | --scripting                  |`pug` `stylus` `sprite` を実行しない              |
