@@ -5,6 +5,7 @@ import { getType } from './type';
 
 /**
  * @param {string} path
+ * @return {boolean}
  */
 export const hasFile = (path) => {
   return new Promise((resolve) => {
@@ -15,20 +16,6 @@ export const hasFile = (path) => {
     catch(err) {
       resolve(false);
     }
-  });
-};
-
-/**
- * @param {string} path
- * @param {string} data
- * @param {Object|string} [opts]
- * @return {Promise}
- */
-export const mkfile = (path, data, opts = {}) => {
-  return new Promise((resolve) => {
-    mkdirp(dirname(path), () => {
-      writeFile(path, data, opts, resolve);
-    });
   });
 };
 
@@ -46,4 +33,18 @@ export const sameFile = (path, data) => {
   catch(err) {
     return false;
   }
+};
+
+/**
+ * @param {string} path
+ * @param {string} data
+ * @param {Object|string} [opts]
+ * @return {Promise}
+ */
+export const mkfile = (path, data, opts = {}) => {
+  return new Promise((resolve) => {
+    mkdirp(dirname(path), () => {
+      writeFile(path, data, opts, resolve);
+    });
+  });
 };
