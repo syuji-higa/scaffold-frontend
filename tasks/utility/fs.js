@@ -1,6 +1,15 @@
 import fs from 'fs';
 import { getType } from './type';
 
+export const hasAccess = (path) => {
+  return new Promise((resolve) => {
+    fs.access(path, (err) => {
+      if(err) return resolve(false);
+      resolve(true);
+    });
+  });
+};
+
 /**
  * @param {string} path
  * @param {string|function} [...args]
@@ -20,7 +29,7 @@ export const readFile = (path, ...args) => {
         break;
     }
   }
-  
+
   return new Promise((resolve, reject) => {
     fs.readFile(path, _encoding, (err, data) => {
       if(err) return reject(err, path);

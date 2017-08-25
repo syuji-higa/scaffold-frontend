@@ -4,8 +4,9 @@ import { join, dirname, extname } from 'path';
 import bs from 'browser-sync';
 import TaskLog from './utility/task-log';
 import { errorLog } from './utility/error-log';
-import { readFile } from './utility/fs';
+import { hasAccess, readFile } from './utility/fs';
 import chokidar from 'chokidar';
+import iconv from 'iconv-lite';
 
 const browserSync        = bs.create();
 const browserSyncUrlList = bs.create();
@@ -46,16 +47,20 @@ export default class BrowserSync {
             reloadOnRestart     : true,
             scrollProportionally: false,
           };
+          const _middleware = [
+            this._convert.bind(this),
+            this._setViewingFile.bind(this),
+          ];
           if(!argv['php']) {
             Object.assign(_opts, {
               server: {
-                middleware: [this._replace.bind(this), this._setViewingFile.bind(this)],
+                middleware: _middleware,
                 baseDir   : path.dest,
               },
             });
           } else {
             Object.assign(_opts, {
-              middleware: [this._replace.bind(this), this._setViewingFile.bind(this)],
+              middleware: _middleware,
               proxy     : '0.0.0.0:3010',
             });
           }
@@ -91,48 +96,59 @@ export default class BrowserSync {
    * @param {Object} res
    * @param {function} next
    */
-  _replace(req, res, next) {
-    const _urlStrs = req.url.match(/^([^.]+(\.(.+))?)?$/);
+  _convert(req, res, next) {
+    const { dest } = config.path;
 
-    if(!_urlStrs) {
-      return next();
-    }
+    (async() => {
+      let _path = join(dest, req.url);
 
-    const _path = (() => {
-      const _p = _urlStrs[2] ? _urlStrs[0] : join(_urlStrs[0], 'index.html');
-      const { dest } = config.path;
-      return join(dest, _p);
+      if(!_path) return next();
+
+      if(!extname(_path)) {
+        for(const ext of ['.html', '.shtml', '.php']) {
+          const __path = join(_path, `index${ ext }`);
+          if(await hasAccess(__path)) {
+            _path = __path;
+            break;
+          }
+        }
+      }
+
+      switch(extname(_path)) {
+        case '.html':
+        case '.shtml':
+        case '.php':
+          fs.readFile(_path, (err, buf) => {
+            if(err) return next();
+            const { charset } = config.pug;
+            (async() => {
+              let _buf = buf;
+              if(charset !== 'utf8') {
+                _buf = this._decode(_buf, charset);
+              }
+              _buf = await this._ssi(dirname(_path), _buf);
+              res.writeHead(200, { 'Content-Type': 'text/html' });
+              res.end(_buf.toString());
+            })();
+          });
+          break;
+        default:
+          next();
+      }
     })();
-
-    switch(extname(_path)) {
-      case '.html':
-      case '.shtml':
-        fs.readFile(_path, (err, buf) => {
-          if(err) return next();
-          (async() => {
-            let _html = buf.toString();
-            _html = await this._ssi(dirname(_path), _html);
-            res.writeHead(200, { 'Content-Type': 'text/html' });
-            res.end(_html);
-          })();
-        });
-        break;
-      default:
-        next();
-    }
   }
 
   /**
    * @param {string} dir
-   * @param {string} html
-   * @return {Promise<string>}
+   * @param {Buffer} buf
+   * @return {Promise<Buffer>}
    */
-  _ssi(dir, html) {
+  _ssi(dir, buf) {
+    let _str        = buf.toString();
     const _rInc     = /<!--#include file=".+" -->/g;
-    const _includes = html.match(_rInc);
+    const _includes = _str.match(_rInc);
 
     return (async() => {
-      let _html = html;
       if(_includes) {
         await Promise.all(_includes.map((inc) => {
           const _path = join(dir, inc.match(/file="(.+)"/)[1]);
@@ -140,12 +156,22 @@ export default class BrowserSync {
             const _buf = await readFile(_path, (err, path) => {
               errorLog('browser-sync ssi', `No such file, open '${ path }'.`);
             });
-            _html = _html.replace(inc, _buf.toString());
+            _str = _str.replace(inc, _buf.toString());
           })();
         }));
       }
-      return _html;
+      return new Buffer(_str);
     })();
+  }
+
+  /**
+   * @param {Buffer} buf
+   * @param {string} encoding
+   * @return {Buffer}
+   */
+  _decode(buf, encoding) {
+    const _str = iconv.decode(buf, encoding);
+    return new Buffer(_str.replace(/(<meta charset=")(.+)(">)/g, '$1utf-8$3'));
   }
 
   /**
