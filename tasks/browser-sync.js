@@ -207,31 +207,24 @@ export default class BrowserSync {
     const { destSet, pugSet } = NS.curtFiles;
     const { path: { dest }, pug } = config;
 
-    if(_ext) {
-      destSet.add(join(dest, _path));
-      switch(_ext) {
-        case '.html':
-        case '.shtml':
-        case '.php':
-          pugSet.add(join(pug.src, _path.replace(_ext, '.pug')));
-          break;
-        case '.css':
-          const { stylusSet } = NS.curtFiles;
-          const { stylus } = config;
-          stylusSet.add(join(stylus.src, _path.replace(_ext, '.styl')));
-          break;
-        case '.js':
-          const { webpackSet } = NS.curtFiles;
-          const { webpack } = config;
-          webpackSet.add(join(webpack.src, _path));
-          break;
-      }
-    } else {
-      destSet.add(join(dest, _path, 'index.html'));
-      destSet.add(join(dest, _path, 'index.php'));
-      pugSet.add(join(pug.src, _path, 'index.pug'));
+    destSet.add(join(dest, _path));
+    switch(_ext) {
+      case '.html':
+      case '.shtml':
+      case '.php':
+        pugSet.add(join(pug.src, _path.replace(_ext, '.pug')));
+        break;
+      case '.css':
+        const { stylusSet } = NS.curtFiles;
+        const { stylus } = config;
+        stylusSet.add(join(stylus.src, _path.replace(_ext, '.styl')));
+        break;
+      case '.js':
+        const { webpackSet } = NS.curtFiles;
+        const { webpack } = config;
+        webpackSet.add(join(webpack.src, _path));
+        break;
     }
-
     next();
   }
 
