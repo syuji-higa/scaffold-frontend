@@ -79,16 +79,16 @@ $ npm run build -- --coding
 
 ## Members
 
-| メンバ・メソッド | 内容              |
+| メンバ・メソッド | 説明              |
 |:-----------------|:------------------|
 | isProduction     | production フラグ |
 | basedir          | pug のルートパス  |
 | join([...paths]) | パス結合          |
 | relative(path)   | 相対パス          |
 
-## [filters](https://pugjs.org/language/filters.html)
+## [Filters](https://pugjs.org/language/filters.html)
 
-| filters名  | 内容                                                 |
+| filters名  | 説明                                                 |
 |:-----------|:-----------------------------------------------------|
 | do-nothing | そのまま出力（先頭は改行、インデントオプションあり） |
 
@@ -105,7 +105,7 @@ $ npm run build -- --coding
 ```
 
 ## Factory
-テンプレート（pug）と json から html を生成し `htdocs/` に出力
+テンプレート（pug）とデータ（json）からファイルを生成し `htdocs/` に出力
 
 ### テンプレートファイル
 `pug/factory/` 以下の pug ファイル  
@@ -172,7 +172,7 @@ Stylus で使用する為に `stylus/imports/sprite.styl` を出力
 `webpack/src/` 以下の js ファイルをトランスパイルし `htdocs/` に出力
 
 ## webpack
-パッケージマネージャーは [npm](https://www.npmjs.com/) を使用
+パッケージマネージャーに [npm](https://www.npmjs.com/) を使用
 
 
 
