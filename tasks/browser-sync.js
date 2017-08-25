@@ -106,26 +106,6 @@ export default class BrowserSync {
     })
   }
 
-  _watch() {
-    const { dest } = config.path;
-    const { destSet } = NS.curtFiles;
-
-    const _opts = { ignoreInitial: true };
-
-    // compile files
-    chokidar.watch(join(dest, '**/*.(html|shtml|php|css|js)'), _opts)
-      .on('all', (event, path) => {
-        if(![...destSet].includes(path)) return;
-        browserSync.reload(path);
-      });
-
-    // image files
-    chokidar.watch(join(dest, '**/*.(png|jpg|jpeg|gif|svg)'), _opts)
-      .on('all', (event, path) => {
-        browserSync.reload(path);
-      });
-  }
-
   /**
    * @param {Object} req
    * @param {Object} res
@@ -140,13 +120,7 @@ export default class BrowserSync {
       if(!_path) return next();
 
       if(!extname(_path)) {
-        for(const ext of ['.html', '.shtml', '.php']) {
-          const __path = join(_path, `index${ ext }`);
-          if(hasFile(__path)) {
-            _path = __path;
-            break;
-          }
-        }
+        _path = this._getIndexPath(_path);
       }
 
       switch(extname(_path)) {
@@ -185,6 +159,16 @@ export default class BrowserSync {
   }
 
   /**
+   * @param {Buffer} buf
+   * @param {string} encoding
+   * @return {Buffer}
+   */
+  _decode(buf, encoding) {
+    const _str = iconv.decode(buf, encoding);
+    return new Buffer(_str.replace(/(<meta charset=")(.+)(">)/g, '$1utf-8$3'));
+  }
+
+  /**
    * @param {string} dir
    * @param {Buffer} buf
    * @return {Promise<Buffer>}
@@ -211,24 +195,14 @@ export default class BrowserSync {
   }
 
   /**
-   * @param {Buffer} buf
-   * @param {string} encoding
-   * @return {Buffer}
-   */
-  _decode(buf, encoding) {
-    const _str = iconv.decode(buf, encoding);
-    return new Buffer(_str.replace(/(<meta charset=")(.+)(">)/g, '$1utf-8$3'));
-  }
-
-  /**
    * @param {Object} req
    * @param {Object} res
    * @param {function} next
    */
   _setViewingFile(req, res, next) {
-    const _urlStrs = req.url.match(/^([^.]+(\.[^/]+)?).*?$/);
-    const _path    = _urlStrs[1];
-    const _ext     = _urlStrs[2];
+    const { url } = req;
+    const _path = this._getIndexPath(url);
+    const _ext  = extname(_path);
 
     const { destSet, pugSet } = NS.curtFiles;
     const { path: { dest }, pug } = config;
@@ -259,6 +233,32 @@ export default class BrowserSync {
     }
 
     next();
+  }
+
+  /**
+   * @param {string} path
+   * @return {string}
+   */
+  _getIndexPath(path) {
+    for(const ext of ['.html', '.shtml', '.php']) {
+      const _path = join(path, `index${ ext }`);
+      if(hasFile(_path)) {
+        return path;
+      }
+    }
+  }
+
+  _watch() {
+    const { dest } = config.path;
+    const { destSet } = NS.curtFiles;
+
+    const _opts = { ignoreInitial: true };
+
+    chokidar.watch(join(dest, '**/*.(html|shtml|php|css|js|png|jpg|jpeg|gif|svg)'), _opts)
+      .on('all', (event, path) => {
+        if(![...destSet].includes(path)) return;
+        browserSync.reload(path);
+      });
   }
 
 }
