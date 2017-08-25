@@ -18,13 +18,13 @@ NS.curtFiles    = {
 };
 
 const { argv } = NS;
-const _isAllTask = !argv['coding'] && !argv['scripting'];
+const isAllTask = !argv['coding'] && !argv['scripting'];
 
 const firstTasks = [];
-if(_isAllTask || argv['coding']) {
+if(isAllTask || argv['coding']) {
   firstTasks.concat([new Pug().start(), new PugFactory().start(), new Sprite().start()]);
 }
-if(_isAllTask || argv['scripting']) {
+if(isAllTask || argv['scripting']) {
   firstTasks.push(new Webpack().start());
 }
 if(argv['production']) {
