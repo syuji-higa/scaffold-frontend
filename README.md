@@ -82,9 +82,9 @@ $ npm run build -- --coding
 | メンバ・メソッド | 内容              |
 |:-----------------|:------------------|
 | isProduction     | production フラグ |
-| basedir          | pug のルート      |
-| join()           | パス結合          |
-| relative()       | 相対パス          |
+| basedir          | pug のルートパス  |
+| join([...paths]) | パス結合          |
+| relative(path)   | 相対パス          |
 
 ## [filters](https://pugjs.org/language/filters.html)
 
