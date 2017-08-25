@@ -1,12 +1,15 @@
 import fs from 'fs';
 import { getType } from './type';
 
-export const hasAccess = (path) => {
+export const hasFile = (path) => {
   return new Promise((resolve) => {
-    fs.access(path, (err) => {
-      if(err) return resolve(false);
+    try {
+      fs.accessSync(path);
       resolve(true);
-    });
+    }
+    catch(err) {
+      resolve(false);
+    }
   });
 };
 

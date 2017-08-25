@@ -4,14 +4,62 @@ import { join, dirname, extname } from 'path';
 import bs from 'browser-sync';
 import TaskLog from './utility/task-log';
 import { errorLog } from './utility/error-log';
-import { hasAccess, readFile } from './utility/fs';
+import { hasFile, readFile } from './utility/fs';
 import chokidar from 'chokidar';
 import iconv from 'iconv-lite';
+import deepAssign from 'deep-assign';
 
 const browserSync        = bs.create();
 const browserSyncUrlList = bs.create();
 
 export default class BrowserSync {
+
+  get _bsUrlListOpts() {
+    const { root } = config.urlList;
+    return {
+      server: {
+        baseDir: root,
+      },
+      port                : 3002,
+      ui                  : false,
+      open                : false,
+      notify              : false,
+      reloadOnRestart     : true,
+      scrollProportionally: false,
+    };
+  }
+
+  get _bsBaseOpts() {
+    return {
+      open                : false,
+      notify              : false,
+      reloadOnRestart     : true,
+      scrollProportionally: false,
+      server: {
+        middleware: [
+          this._convert.bind(this),
+          this._setViewingFile.bind(this),
+        ],
+      },
+    };
+  }
+
+  get _bsOpts() {
+    const { dest } = config.path;
+    const { _bsBaseOpts } = this;
+    return deepAssign(_bsBaseOpts, {
+      server: {
+        baseDir: dest,
+      },
+    });
+  }
+
+  get _bsPhpOpts() {
+    const { _bsBaseOpts } = this;
+    return deepAssign(_bsBaseOpts, {
+      proxy: '0.0.0.0:3010',
+    });
+  }
 
   constructor() {
     this._taskLog = new TaskLog('browser-sync');
@@ -21,71 +69,57 @@ export default class BrowserSync {
    * @return {Promsie}
    */
   start() {
-    const { path, urlList } = config;
-    const { argv } = NS;
     const { _taskLog } = this;
     return (async () => {
       _taskLog.start();
       await Promise.all([
-        new Promise((resolve) => {
-          browserSyncUrlList.init({
-            server: {
-              baseDir: urlList.root,
-            },
-            port                : 3002,
-            ui                  : false,
-            open                : false,
-            notify              : false,
-            reloadOnRestart     : true,
-            scrollProportionally: false,
-          }, resolve);
-        }),
-        new Promise((resolve) => {
-          const _opts = {
-            open                : false,
-            notify              : false,
-            reloadOnRestart     : true,
-            scrollProportionally: false,
-          };
-          const _middleware = [
-            this._convert.bind(this),
-            this._setViewingFile.bind(this),
-          ];
-          if(!argv['php']) {
-            Object.assign(_opts, {
-              server: {
-                middleware: _middleware,
-                baseDir   : path.dest,
-              },
-            });
-          } else {
-            Object.assign(_opts, {
-              middleware: _middleware,
-              proxy     : '0.0.0.0:3010',
-            });
-          }
-          browserSync.init(_opts, resolve);
-        }),
+        this._browserSyncUrlList(),
+        this._browserSync(),
       ]);
+      const { argv } = NS;
       if(!argv['production']) {
         this._watch();
       }
     })();
   }
 
+  /**
+   * @return {Promise}
+   */
+  _browserSyncUrlList() {
+    return new Promise((resolve) => {
+      const { _bsUrlListOpts } = this;
+      browserSyncUrlList.init(_bsUrlListOpts, resolve);
+    });
+  }
+
+  /**
+   * @return {Promise}
+   */
+  _browserSync() {
+    return new Promise((resolve) => {
+      const { argv } = NS;
+      const { _bsOpts, _bsPhpOpts } = this;
+      const _opts = !argv['php'] ? _bsOpts : _bsPhpOpts;
+      browserSync.init(_opts, resolve);
+    })
+  }
+
   _watch() {
     const { dest } = config.path;
     const { destSet } = NS.curtFiles;
 
+    const _opts = { ignoreInitial: true };
+
     // compile files
-    chokidar.watch(join(dest, '**/*.(html|php|css|js)'), { ignoreInitial: true })
+    chokidar.watch(join(dest, '**/*.(html|shtml|php|css|js)'), _opts)
       .on('all', (event, path) => {
         if(![...destSet].includes(path)) return;
         browserSync.reload(path);
       });
 
     // image files
-    chokidar.watch(join(dest, '**/*.(png|jpg|jpeg|gif|svg)'), { ignoreInitial: true })
+    chokidar.watch(join(dest, '**/*.(png|jpg|jpeg|gif|svg)'), _opts)
       .on('all', (event, path) => {
         browserSync.reload(path);
       });
@@ -107,7 +141,7 @@ export default class BrowserSync {
       if(!extname(_path)) {
         for(const ext of ['.html', '.shtml', '.php']) {
           const __path = join(_path, `index${ ext }`);
-          if(await hasAccess(__path)) {
+          if(hasFile(__path)) {
             _path = __path;
             break;
           }
@@ -118,24 +152,35 @@ export default class BrowserSync {
         case '.html':
         case '.shtml':
         case '.php':
-          fs.readFile(_path, (err, buf) => {
-            if(err) return next();
-            const { charset } = config.pug;
-            (async () => {
-              let _buf = buf;
-              if(charset !== 'utf8') {
-                _buf = this._decode(_buf, charset);
-              }
-              _buf = await this._ssi(dirname(_path), _buf);
-              res.writeHead(200, { 'Content-Type': 'text/html' });
-              res.end(_buf.toString());
-            })();
-          });
+          const _buf = await this._pageConvert(_path);
+          res.writeHead(200, { 'Content-Type': 'text/html' });
+          res.end(_buf.toString());
           break;
         default:
           next();
       }
     })();
+  }
+
+  /**
+   * @param {string} path
+   * @return {Promise<Buffer>}
+   */
+  _pageConvert(path) {
+    return new Promise((resolve) => {
+      fs.readFile(path, (err, buf) => {
+        if(err) return next();
+        const { charset } = config.pug;
+        (async () => {
+          let _buf = buf;
+          if(charset !== 'utf8') {
+            _buf = this._decode(_buf, charset);
+          }
+          _buf = await this._ssi(dirname(path), _buf);
+          resolve(_buf);
+        })();
+      });
+    });
   }
 
   /**
