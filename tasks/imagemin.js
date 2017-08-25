@@ -61,8 +61,7 @@ export default class Imagemin {
       if(!_buf) return;
 
       const _minBuf = await imagemin.buffer(_buf, { plugins: [_plugins[_ext]] });
-      const _isSame = await sameFile(_dest, _minBuf);
-      if(!_isSame) {
+      if(!sameFile(_dest, _minBuf)) {
         await mkfile(_dest, _minBuf.toString('base64'), 'base64');
         fileLog('create', _dest);
       }

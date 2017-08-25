@@ -96,12 +96,9 @@ sprite-retina(filepath)
       })());
 
       const _css = this._getCss(this._flatten(_spritehashs));
-      if(_css) {
-        const _isSame = await sameFile(styleDest, _css);
-        if(!_isSame) {
-          await mkfile(styleDest, _css);
-          fileLog('create', styleDest);
-        }
+      if(_css && !sameFile(styleDest, _css)) {
+        await mkfile(styleDest, _css);
+        fileLog('create', styleDest);
       }
 
       _taskLog.finish();
@@ -139,9 +136,8 @@ sprite-retina(filepath)
         const _dest = join(dest, _key);
 
         (async () => {
-          const _buf    = await this._getImgBuf(image);
-          const _isSame = await sameFile(_dest, _buf);
-          if(!_isSame) {
+          const _buf = await this._getImgBuf(image);
+          if(!sameFile(_dest, _buf)) {
             await mkfile(_dest, _buf.toString('base64'), 'base64');
             fileLog('create', _dest);
           }

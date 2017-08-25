@@ -60,9 +60,8 @@ export default class UrlList {
       const _buf = await readFile(tmp, (err) => errorLog('url-list', err));
       if(!_buf) return;
 
-      const _html   = _buf.toString().replace('{{data}}', JSON.stringify(_urlHash));
-      const _isSame = await sameFile(dest, _html);
-      if(!_isSame) {
+      const _html = _buf.toString().replace('{{data}}', JSON.stringify(_urlHash));
+      if(!sameFile(dest, _html)) {
         await mkfile(dest, _html);
         fileLog('create', dest);
       }

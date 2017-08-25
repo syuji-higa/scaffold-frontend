@@ -70,8 +70,7 @@ export default class Pug extends PugBase {
         _buf = iconv.encode(_buf, charset);
       }
 
-      const _isSame = await sameFile(_dest, _buf);
-      if(!_isSame) {
+      if(!sameFile(_dest, _buf)) {
         await mkfile(_dest, _buf);
         fileLog('create', _dest);
       }

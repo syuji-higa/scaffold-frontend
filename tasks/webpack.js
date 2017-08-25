@@ -152,8 +152,7 @@ export default class Webpack extends Base {
         _jsBuf = iconv.encode(_jsBuf, charset);
       }
 
-      const _isSame = await sameFile(_dest, _jsBuf);
-      if(!_isSame) {
+      if(!sameFile(_dest, _jsBuf)) {
         await mkfile(_dest, _jsBuf);
         fileLog('create', _dest);
 

@@ -79,9 +79,8 @@ export default class Stylus extends Base {
         _cssBuf = iconv.encode(_cssBuf, charset);
       }
 
-      const _dest   = join(dest, relative(src, path)).replace('.styl', '.css');
-      const _isSame = await sameFile(_dest, _cssBuf);
-      if(!_isSame) {
+      const _dest = join(dest, relative(src, path)).replace('.styl', '.css');
+      if(!sameFile(_dest, _cssBuf)) {
         await mkfile(_dest, _cssBuf);
         fileLog('create', _dest);
 

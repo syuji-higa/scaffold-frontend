@@ -107,8 +107,7 @@ export default class PugFactory extends PugBase {
 
               const _ext  = this._getExt(_srcPath);
               const _dest = join(dest, _srcPath).replace('.pug', _ext);
-              const _isSame = await sameFile(_dest, _buf);
-              if(!_isSame) {
+              if(!sameFile(_dest, _buf)) {
                 await mkfile(_dest, _buf);
                 fileLog('create', _dest);
               }
