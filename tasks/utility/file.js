@@ -3,6 +3,9 @@ import { accessSync, readFileSync, writeFile } from 'fs';
 import mkdirp from 'mkdirp';
 import { getType } from './type';
 
+/**
+ * @param {string} path
+ */
 export const hasFile = (path) => {
   return new Promise((resolve) => {
     try {
