@@ -47,7 +47,7 @@ export default class PugFactory extends PugBase {
     const { pugSet } = NS.curtFiles;
     const { _pugOpts } = this;
 
-    return (async() => {
+    return (async () => {
       const _buf = await readFile(path, (err) => errorLog('pug-factory', err));
       if(!_buf) return;
 
@@ -63,7 +63,7 @@ export default class PugFactory extends PugBase {
       if(!_tmps) return;
 
       await Promise.all(Object.entries(_tmps).map(([tmpPath, pages]) => {
-        return (async() => {
+        return (async () => {
           const _path   = join(root, `${ tmpPath }.pug`);
           const _tmpBuf = await readFile(_path, (err) => errorLog('pug-factory', err));
           if(!_tmpBuf) return;
@@ -74,7 +74,7 @@ export default class PugFactory extends PugBase {
           await Promise.all(Object.entries(pages).map(([srcPath, vals]) => {
             const _srcPath = `${ srcPath }.pug`;
 
-            return (async() => {
+            return (async () => {
               if(!isFirstBuild && (argv['viewing-update'] || argv['viewing-update-pug'])) {
                 if(!pugSet.has(_srcPath)) return;
               }

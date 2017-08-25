@@ -99,7 +99,7 @@ export default class BrowserSync {
   _convert(req, res, next) {
     const { dest } = config.path;
 
-    (async() => {
+    (async () => {
       let _path = join(dest, req.url);
 
       if(!_path) return next();
@@ -121,7 +121,7 @@ export default class BrowserSync {
           fs.readFile(_path, (err, buf) => {
             if(err) return next();
             const { charset } = config.pug;
-            (async() => {
+            (async () => {
               let _buf = buf;
               if(charset !== 'utf8') {
                 _buf = this._decode(_buf, charset);
@@ -148,11 +148,11 @@ export default class BrowserSync {
     const _rInc     = /<!--#include file=".+" -->/g;
     const _includes = _str.match(_rInc);
 
-    return (async() => {
+    return (async () => {
       if(_includes) {
         await Promise.all(_includes.map((inc) => {
           const _path = join(dir, inc.match(/file="(.+)"/)[1]);
-          return (async() => {
+          return (async () => {
             const _buf = await readFile(_path, (err, path) => {
               errorLog('browser-sync ssi', `No such file, open '${ path }'.`);
             });

@@ -81,7 +81,7 @@ sprite-retina(filepath)
   _build() {
     const { sprite, styleDest } = config.images;
     const { _taskLog } = this;
-    return (async() => {
+    return (async () => {
       _taskLog.start();
 
       const _paths   = await glob(join(sprite, '**/*.+(png|jpg|gif|svg)'));
@@ -138,7 +138,7 @@ sprite-retina(filepath)
         const _key  = `${ key }.png`;
         const _dest = join(dest, _key);
 
-        (async() => {
+        (async () => {
           const _buf    = await this._getImgBuf(image);
           const _isSame = await sameFile(_dest, _buf);
           if(!_isSame) {

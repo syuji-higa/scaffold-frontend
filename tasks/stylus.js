@@ -45,7 +45,7 @@ export default class Stylus extends Base {
     const { path: { root }, stylus: { charset, lineFeedCode, src, dest } } = config;
     const { argv } = NS;
 
-    return (async() => {
+    return (async () => {
       const _path = join(root, path);
       const _buf  = await readFile(_path, (err) => errorLog('stylus', err));
       if(!_buf) return;

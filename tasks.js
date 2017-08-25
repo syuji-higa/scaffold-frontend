@@ -31,7 +31,7 @@ if(argv['production']) {
   firstTasks.push(new Imagemin().start());
 }
 
-(async() => {
+(async () => {
   await Promise.all(firstTasks);
   if(argv['production']) {
     await new Clean().start();

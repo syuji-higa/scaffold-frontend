@@ -101,7 +101,7 @@ export default class Webpack extends Base {
     } = config;
     const { argv } = NS;
 
-    return (async() => {
+    return (async () => {
       const _root     = relative(src, file);
       const _dest     = join(dest, _root);
       const _destDir  = dirname(_dest);
@@ -134,7 +134,7 @@ export default class Webpack extends Base {
           }
           const _path = join(root, _destDir, _destFile);
 
-          (async() => {
+          (async () => {
             const _jsBuf        = await this._readFile(_path);
             const _sourcemapBuf = await this._readFile(`${ _path }.map`);
             resolve({ jsBuf: _jsBuf, sourcemapBuf: _sourcemapBuf });

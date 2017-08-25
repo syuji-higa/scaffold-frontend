@@ -44,7 +44,7 @@ export default class Pug extends PugBase {
     const { charset, lineFeedCode, src, dest } = config.pug;
     const { _pugOpts } = this;
 
-    return (async() => {
+    return (async () => {
       const _ext  = this._getExt(relative(src, path));
       const _dest = join(dest, relative(src, path)).replace('.pug', _ext);
       const _opts = Object.assign(_pugOpts, this._getMembers(path));
