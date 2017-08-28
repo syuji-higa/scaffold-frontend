@@ -2,7 +2,6 @@
   "name": "scaffold-frontend",
   "version": "1.0.0",
   "description": "frontend scaffold",
-  "main": "",
   "scripts": {
     "watch": "babel-node tasks.js",
     "build": "babel-node tasks.js --build",
@@ -16,7 +15,6 @@
   },
   "auther": "syuji-higa",
   "license": "MIT",
-  "private": true,
   "devDependencies": {
     "babel-cli": "^6.24.1",
     "babel-loader": "^7.1.2",
