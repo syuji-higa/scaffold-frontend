@@ -21,7 +21,7 @@ export default class Webpack extends Base {
   }
 
   get _webpackOpts() {
-    const { root } = config.path;
+    const { root } = config.project;
     return {
       resolve: {
         descriptionFiles: ['package.json'],
@@ -96,7 +96,7 @@ export default class Webpack extends Base {
    */
   _build(file) {
     const {
-      path   : { root },
+      project: { root },
       webpack: { charset, lineFeedCode, src, dest },
     } = config;
     const { argv } = NS;
