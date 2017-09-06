@@ -205,7 +205,7 @@ export default class BrowserSync {
     const { project: { htdocs }, pug } = config;
 
     const { url } = req;
-    const _path = this._getFilePath(join(htdocs, url));
+    const _path = relative(htdocs ,this._getFilePath(join(htdocs, url)));
     const _ext  = extname(_path);
 
     if(_ext) {
@@ -214,20 +214,17 @@ export default class BrowserSync {
         case '.html':
         case '.shtml':
         case '.php':
-          const _pugRootPath = relative(htdocs, _path.replace(_ext, '.pug'));
-          pugSet.add(join(pug.src, _pugRootPath));
+          pugSet.add(join(pug.src, _path.replace(_ext, '.pug')));
           break;
         case '.css':
           const { stylusSet } = NS.curtFiles;
           const { stylus } = config;
-          const _stylusRootPath = relative(htdocs, _path.replace(_ext, '.styl'));
-          stylusSet.add(join(stylus.src, _stylusRootPath));
+          stylusSet.add(join(stylus.src, _path.replace(_ext, '.styl')));
           break;
         case '.js':
           const { webpackSet } = NS.curtFiles;
           const { webpack } = config;
-          const _webpackRootPath = relative(htdocs, _path);
-          webpackSet.add(join(webpack.src, _webpackRootPath));
+          webpackSet.add(join(webpack.src, _path));
           break;
       }
     }
