@@ -70,6 +70,7 @@ export default class Webpack extends Base {
    */
   init() {
     return (async () => {
+      const { notMinifyFiles } = config.webpack;
       this._notMinifyFiles = await glob(notMinifyFiles);
     })();
   }
