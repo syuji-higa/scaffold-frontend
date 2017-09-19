@@ -28,13 +28,14 @@ export default {
     cacheBusterExts: ['jpg', 'png', 'gif', 'svg'],
   },
   webpack: {
-    charset     : 'utf8',
-    lineFeedCode: 'LF',  // 'CR+LF', 'LF', 'CR'
-    root        : 'webpack',
-    src         : 'webpack/src',
-    imports     : 'webpack/imports',
-    dest        : 'htdocs',
-    minify      : true,
+    charset       : 'utf8',
+    lineFeedCode  : 'LF',  // 'CR+LF', 'LF', 'CR'
+    root          : 'webpack',
+    src           : 'webpack/src',
+    imports       : 'webpack/imports',
+    dest          : 'htdocs',
+    minify        : true,
+    notMinifyFiles: ['webpack/**/vender.js'],
   },
   images: {
     root      : 'images',
