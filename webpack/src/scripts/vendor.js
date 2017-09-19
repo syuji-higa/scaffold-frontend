@@ -11,7 +11,7 @@
 // import 'velocity-animate/velocity.ui.min';  // velocity-animate
 // import 'velocity.easeplus';  // https://github.com/syuji-higa/easeplus-velocity.git
 // import { Router } from 'hash-router';  // https://github.com/michaelsogos/Hash-Router.git
-// import doT from 'doT';  // dot
+// import doT from 'dot/doT.min';
 //
 // if(typeof VENDORS !== 'undefined') {
 //   throw new Error('namespace "VENDORS" is already exists.');
