@@ -12,6 +12,7 @@ export default {
     factory        : 'pug/factory',
     dest           : 'htdocs',
     php            : [],  // 'all', ['index.pug', 'sp/index.pug']
+    minify         : true,
     relativePath   : false,
     cacheBusterExts: [],
   },
@@ -22,6 +23,7 @@ export default {
     src            : 'stylus/src',
     imports        : 'stylus/imports',
     dest           : 'htdocs',
+    minify         : true,
     relativePath   : true,
     cacheBusterExts: ['jpg', 'png', 'gif', 'svg'],
   },
@@ -32,6 +34,7 @@ export default {
     src         : 'webpack/src',
     imports     : 'webpack/imports',
     dest        : 'htdocs',
+    minify      : true,
   },
   images: {
     root      : 'images',
