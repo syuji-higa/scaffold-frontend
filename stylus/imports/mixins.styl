@@ -215,9 +215,6 @@ create-keyframes(name, duration, interval, animationHash)
 opacity(val)
   opacity val
 
-border-radius(vals...)
-  border-radius vals
-
 clearfix()
   +cache('clearfix')
     &::after
@@ -225,14 +222,17 @@ clearfix()
       display block
       clear both
 
+border-radius(vals...)
+  border-radius vals
+
 box-sizing(val)
   box-sizing val
 
 box-shadow(val)
   box-shadow val
 
-background-size(val...)
-  background-size val
+background-size(vals...)
+  background-size vals
 
 transform(vals...)
   if support-android4
