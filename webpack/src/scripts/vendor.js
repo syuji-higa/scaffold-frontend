@@ -1,6 +1,7 @@
 // import 'babel-polyfill/dist/polyfill.min';
-// import 'classList';  // https://github.com/eligrey/classList.js.git
-// import 'element-dataset';
+// import 'classlist.js/classList.min';  // https://github.com/eligrey/classList.js.git
+// import elementDataset from 'element-dataset';
+// elementDataset();
 // import 'fetch-polyfill';  // ie8+
 // import 'whatwg-fetch';  // ie10+
 // import 'rAF';  // https://gist.github.com/1579671.git
