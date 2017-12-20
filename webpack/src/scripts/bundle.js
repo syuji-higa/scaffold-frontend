@@ -1,10 +1,21 @@
 import { createInstance, createSingleInstance } from 'utility/instance';
+import mediaObserver from 'controller/media-observer';
 import Sample from 'view/sample';
 
 if(typeof NS !== 'undefined') {
   throw new Error('namespace "NS" is already exists.');
 }
 window.NS = {};
+
+if(typeof NS !== 'undefined') {
+  throw new Error('namespace "NS" is already exists.');
+}
+window.NS = {};
+
+NS.status = {
+  media: '',  // ['sp'|'pc']
+};
+new mediaObserver();
 
 window.addEventListener('DOMContentLoaded', () => {
 
