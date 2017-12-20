@@ -12,6 +12,7 @@
 // import 'velocity-animate/velocity.ui.min';  // velocity-animate
 // import 'easeplus-velocity/release/1.2/velocity.easeplus.min';  // https://github.com/syuji-higa/easeplus-velocity.git
 // import { Router } from 'hash-router';  // https://github.com/michaelsogos/Hash-Router.git
+// import page from 'page';
 // import doT from 'dot/doT.min';
 //
 // if(typeof VENDORS !== 'undefined') {
@@ -20,6 +21,7 @@
 // window.VENDORS = {};
 //
 // VENDORS.HashRouter = Router;
+// VENDORS.page       = page;
 // VENDORS.doT        = doT;
 //
 // doT.templateSettings = {
