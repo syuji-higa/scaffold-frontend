@@ -8,8 +8,8 @@
 // import 'custom-event-polyfill';
 // import 'html-domparser';  // https://gist.github.com/1129031.git
 // import 'gsap';
-// import 'velocity-animate/velocity.min';  // velocity-animate
-// import 'velocity-animate/velocity.ui.min';  // velocity-animate
+// import 'velocity-animate/velocity.min';
+// import 'velocity-animate/velocity.ui.min';
 // import 'easeplus-velocity/release/1.2/velocity.easeplus.min';  // https://github.com/syuji-higa/easeplus-velocity.git
 // import { Router } from 'hash-router';  // https://github.com/michaelsogos/Hash-Router.git
 // import page from 'page';
